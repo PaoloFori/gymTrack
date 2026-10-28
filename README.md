@@ -36,6 +36,14 @@ Foto, nome, età, altezza e peso. Qui trovi anche i **record personali**, il **g
 
 <img src="docs/6-avatar.png" width="240" alt="I miei avatar">
 
+### Home e sessioni passate
+La home mostra la sessione in corso e sotto le **sessioni passate** con i loro avatar. Tocca un avatar per aprire la sessione: avatar finale, schede, esercizi e tutti gli allenamenti fatti.
+
+<p>
+<img src="docs/14-home-passate.png" width="200" alt="Sessioni passate">
+<img src="docs/15-sessione-passata.png" width="200" alt="Dettaglio sessione">
+</p>
+
 ### Sessione
 Quando ne inizi una, l'app ti chiede il **peso attuale** (e aggiorna il profilo), prende altezza ed età dal profilo
 e poi chiede:
@@ -64,6 +72,8 @@ Quando premi **Inizia** parte il **cronometro della scheda**, che a fine allenam
 Inserisci kg e ripetizioni (i carichi dell'ultima volta sono già compilati) e spunti le serie: parte il **timer di recupero**
 e, quando scade, ricevi **suono, vibrazione e notifica**.
 
+- Per ogni esercizio vedi i **pesi usati l'ultima volta** (data, kg e ripetizioni di ogni serie).
+- Se tocchi una serie già fatta, l'app ti chiede conferma prima di toglierla (tocca ancora il "?").
 - **Riscaldamento**: tocca il numero della serie per segnarla "R": non conta nel volume né nei record. Puoi anche impostare quante serie di riscaldamento prevede ogni esercizio.
 - **Superset**: spunta "Superset con l'esercizio successivo": tra i due esercizi non c'è pausa, il recupero parte dopo il secondo.
 - Se esci dall'app a metà allenamento, al ritorno ritrovi tutto (cronometro compreso). Lo schermo resta acceso durante l'allenamento.
@@ -85,6 +95,14 @@ negli altri giorni la cella resta vuota. Tocca un giorno con 🏋️ per vedere 
 <img src="docs/8-grafico.png" width="200" alt="Grafico">
 </p>
 
+### Storico
+Nel Profilo lo storico si legge in tre modi: **per sessione** (tocchi una sessione per aprirla), **per esercizio** (es. la panca piana attraverso tutte le sessioni, con grafico e carichi di ogni volta) e **cronologia** degli allenamenti.
+
+<p>
+<img src="docs/16-storico-esercizi.png" width="200" alt="Storico per esercizio">
+<img src="docs/17-esercizio-storico.png" width="200" alt="Storico di un esercizio">
+</p>
+
 ### Avatar
 - Parte **piccolo e debole**.
 - **Cresce a ogni allenamento** completato.
@@ -94,6 +112,7 @@ negli altri giorni la cella resta vuota. Tocca un giorno con 🏋️ per vedere 
 - Se salti troppi allenamenti l'avatar **ingrassa**. Da metà settimana, se sei indietro, compare un avviso.
 - Il fisico di partenza dipende da altezza, peso e obiettivo.
 - Quattro forme: umano, orso, lupo, gorilla.
+- L'avatar cambia in base all'**obiettivo**: *ipertrofia* = più massa; *forza* = compatto e spesso; *dimagrimento* = parte più morbido e si asciuga; *mantenimento* = poche variazioni; *ricomposizione* = perde grasso e mette muscolo.
 - Con le aure si sbloccano gli **accessori**: fascia (1 boost), cintura (3), mantello (5), corona (7).
 
 ### Schede con l'IA

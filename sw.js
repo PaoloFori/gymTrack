@@ -1,6 +1,6 @@
 // Service worker: l'app funziona anche offline dopo la prima visita.
 // Cambia VERSION quando pubblichi una nuova versione, così i telefoni si aggiornano.
-const VERSION = "gymtrack-v4";
+const VERSION = "gymtrack-v5";
 const GIFCACHE = "gymtrack-gif";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 
