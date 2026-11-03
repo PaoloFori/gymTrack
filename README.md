@@ -54,6 +54,19 @@ e poi chiede:
 
 Poi aggiungi le schede: puoi **generarle con l'IA**, **chiederle a un preparatore via email** oppure **inserire quelle che hai già**.
 
+### Dieta
+Nella scheda **Dieta** carichi il PDF del piano alimentare (cibi e quante volte a settimana mangiarli; se il PDF è una scansione puoi incollare il testo).
+L'app legge i cibi, ne propone di **simili** e ti chiede quali preferisci evitare. Poi crea il **piano settimanale** (si apre il giorno di oggi) e la **lista della spesa** con suggerimenti di marche e la spunta «preso».
+Ogni dieta si può **abbinare a una o più sessioni**: quella in corso mostra in home il menu di oggi. Il lettore PDF si scarica la prima volta (serve internet), poi resta in cache.
+
+### Navigazione
+Tra Sessione, Calendario, Dieta e Profilo puoi anche **scorrere a destra o a sinistra**.
+
+### Avatar e livelli
+Sette avatar (uomo, donna, orso, lupo, gorilla, leone, toro). Il corpo va da «completamente fuori obiettivo» a «obiettivo perfetto»:
+magro → massiccio (ipertrofia), debole → bilanciere sopra la testa (forza), sovrappeso → asciutto con metro da sarta (dimagrimento), fuori allenamento → medaglia (mantenimento), morbido → tonico (ricomposizione; per dimagrimento e ricomposizione resta una sagoma sbiadita del punto di partenza).
+I nomi dei livelli cambiano con l'obiettivo (es. Esile → Colosso per l'ipertrofia, Appesantito → Scolpito per il dimagrimento).
+
 ### Crea scheda
 Indichi i minuti che hai per ogni allenamento, cosa vorresti ottenere e spunti i macchinari della tua palestra (divisi per gruppo muscolare). Poi scegli:
 - **Genera con IA** (o copia il testo e incollalo in un assistente come Claude): l'IA usa profilo, obiettivo, allenamenti a settimana, minuti, attrezzi, schede passate, carichi usati, fatica e record, e propone anche superset, riscaldamento e la GIF di ogni esercizio.

@@ -1,6 +1,6 @@
 // Service worker: l'app funziona anche offline dopo la prima visita.
 // Cambia VERSION quando pubblichi una nuova versione, così i telefoni si aggiornano.
-const VERSION = "gymtrack-v5";
+const VERSION = "gymtrack-v6";
 const GIFCACHE = "gymtrack-gif";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 
@@ -17,6 +17,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   if (url.hostname === "raw.githubusercontent.com") { // GIF e miniature degli esercizi: una volta viste restano offline
     e.respondWith(caches.open(GIFCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { c.put(req, res.clone()); return res; }))));
+    return;
+  }
+  if (url.hostname === "cdnjs.cloudflare.com") { // lettore PDF: scaricato una volta, poi anche offline
+    e.respondWith(caches.open(GIFCACHE).then((c) => c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res.ok) c.put(req, res.clone()); return res; }))));
     return;
   }
   if (url.origin !== location.origin) return; // i font di Google restano in rete
