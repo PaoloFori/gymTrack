@@ -227,6 +227,23 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
 .sugg button[aria-pressed="true"] { border-style: solid; border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .dtx { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 110px; font-size: 13px; }
 .today-b { background: var(--accent); color: var(--accent-ink); }
+
+.xrow { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.xrow .xn { display: block; font-family: var(--display); font-size: 22px; line-height: 1.1; text-transform: uppercase; font-weight: 700; overflow-wrap: anywhere; }
+.xrow .meta { display: block; margin-top: 4px; }
+.xrow .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: flex; align-items: center; justify-content: center; color: transparent; font-size: 13px; font-weight: 700; }
+.xrow.part .dot { border-color: var(--accent); background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); }
+.xrow.ok { opacity: .5; } .xrow.ok .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+.gif.md { width: 84px; height: 84px; } .gif.big { width: 100%; height: 220px; object-fit: contain; background: var(--surface2); }
+.btn:disabled { opacity: .45; cursor: default; }
+.sets input[readonly] { opacity: .65; }
+.sets .ck:disabled { opacity: 1; }
+.avc.sel { position: relative; } .avc.sel .cb { position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--line); background: var(--surface); color: transparent; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.avc.sel[aria-pressed="true"] { border-color: var(--danger); } .avc.sel[aria-pressed="true"] .cb { background: var(--danger); border-color: var(--danger); color: #fff; }
+.swg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.sw { border: 2px solid var(--line); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; align-items: stretch; background: transparent; }
+.sw[aria-pressed="true"] { border-color: var(--accent); }
+.sw i { display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 8px; } .sw i b { width: 26px; height: 26px; border-radius: 50%; display: block; } .sw span { font-size: 12px; font-weight: 600; text-align: center; }
 @media (prefers-reduced-motion: no-preference) { .btn, .ck, .tab { transition: background-color .12s, color .12s; } }
 </style>
 
@@ -277,7 +294,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     Mantenimento: { f0: 0.5, f1: 0.08, m0: 0.1, m1: 0.55, t0: 0, t1: 0, thick: 1, s0: 10, prop: "medal", txt: "Mantenimento: l'avatar parte fuori allenamento e arriva a un fisico sano, equilibrato e costante." },
     Ricomposizione: { f0: 0.6, f1: 0, m0: 0, m1: 0.9, t0: 0.3, t1: 0, thick: 1, s0: 12, prop: "", ghost: 1, txt: "Ricomposizione: l'avatar parte morbido e senza tono e perde grasso mettendo muscolo. La sagoma sbiadita è il tuo punto di partenza." }
   };
-  var hm = "sess", dTab = "piano", dOpen = null, dCur = null;
+  var hm = "sess", dTab = "piano", dOpen = null, dCur = null, selMode = false, selIds = [];
   var AV = { umano: "Uomo", donna: "Donna", animale: "Orso", lupo: "Lupo", gorilla: "Gorilla", leone: "Leone", toro: "Toro" };
   var AVK = ["umano", "donna", "animale", "lupo", "gorilla", "leone", "toro"];
 
@@ -297,13 +314,15 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   var appDoc = null, logCol = null, mode = "local", saveT = null, saving = false, dirty = false, toastT = null, aiFn = null, aiCtl = null;
 
   function normalize(st) {
-    var d = { profile: { foto: "", nome: "", eta: "", altezza: "", peso: "" }, sessioni: [], attrezzi: [], pesi: [], diete: [], lastBackup: 0 };
+    var d = { profile: { foto: "", nome: "", eta: "", altezza: "", peso: "" }, sessioni: [], attrezzi: [], pesi: [], diete: [], tema: { pal: "blu", mode: "auto" }, lastBackup: 0 };
     if (!st || typeof st !== "object") return d;
     st.profile = Object.assign({}, d.profile, st.profile || {});
     st.sessioni = Array.isArray(st.sessioni) ? st.sessioni : [];
     st.attrezzi = Array.isArray(st.attrezzi) ? st.attrezzi : [];
     st.pesi = Array.isArray(st.pesi) ? st.pesi : [];
     st.diete = Array.isArray(st.diete) ? st.diete : [];
+    st.tema = st.tema && typeof st.tema === "object" ? Object.assign({ pal: "blu", mode: "auto" }, st.tema) : { pal: "blu", mode: "auto" };
+    st.diete.forEach(function (x) { x.sess = Array.isArray(x.sess) ? x.sess : []; if (!x.sess.length) { var ac = st.sessioni.find(function (q) { return !q.chiusa; }); if (ac) x.sess = [ac.id]; } });
     st.lastBackup = Number(st.lastBackup) || 0;
     st.sessioni.forEach(function (x) { x.schede = Array.isArray(x.schede) ? x.schede : []; });
     delete st.schede; delete st.avatar;
@@ -751,20 +770,22 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     h += '<p class="meta">Obiettivo «' + esc(a.obiettivo) + "» stimato in circa " + Math.round(T) + " settimane: " + (k === 1 ? "basta una sessione." : "circa " + k + " sessioni da " + a.mesi + " mesi.") + "</p>";
     return h + "</div>";
   }
-  function avGridItems(list) {
+  function avGridItems(list, sel) {
     var h = '<div class="avgrid">';
     list.forEach(function (x) {
       var st, label, sub;
       if (x.chiusa) { var f = x.finale || {}; st = { p: f.p || 0, fat: f.fat || 0, aura: f.aura || 0 }; label = livello({ P: f.P || 0, fat: f.fat || 0 }, x.obiettivo); sub = "forma " + Math.round(f.P || 0); }
       else { var g = progress(x); st = { p: g.p, fat: g.fat, aura: g.aura }; label = livello(g, x.obiettivo); sub = "in corso"; }
-      h += '<button class="avc" data-act="open-sess" data-id="' + x.id + '" aria-label="Apri ' + esc(x.nome) + '">' + avatarSVG(x.tipo, st, x) + "<b>" + esc(x.nome) + '</b><span class="meta">' + esc(label) + " · " + sub + (st.aura ? " · aura " + st.aura : "") + '</span><span class="meta">' + esc(x.obiettivo) + " · " + fd(x.start) + " – " + fd(x.chiuseTs || endOf(x)) + "</span></button>";
+      h += (sel ? '<button class="avc sel" data-act="sel-sess" data-id="' + x.id + '" aria-pressed="' + (selIds.indexOf(x.id) >= 0) + '" aria-label="Seleziona ' + esc(x.nome) + '"><span class="cb">✓</span>' : '<button class="avc" data-act="open-sess" data-id="' + x.id + '" aria-label="Apri ' + esc(x.nome) + '">') + avatarSVG(x.tipo, st, x) + "<b>" + esc(x.nome) + '</b><span class="meta">' + esc(label) + " · " + sub + (st.aura ? " · aura " + st.aura : "") + '</span><span class="meta">' + esc(x.obiettivo) + " · " + fd(x.start) + " – " + fd(x.chiuseTs || endOf(x)) + "</span></button>";
     });
     return h + "</div>";
   }
   function avatarGrid() {
-    var h = '<div class="card"><div class="meta" style="margin:0 0 8px;font-weight:600">I miei avatar</div>';
+    var h = '<div class="card"><div class="row" style="margin-bottom:8px"><div class="meta grow" style="margin:0;font-weight:600">I miei avatar</div>' + (S.sessioni.length ? '<button class="btn small" data-act="sel-mode">' + (selMode ? "Annulla" : "Seleziona") + "</button>" : "") + "</div>";
     if (!S.sessioni.length) return h + '<p class="meta">Qui compaiono gli avatar di tutte le tue sessioni, quelle concluse e quella in corso.</p></div>';
-    return h + avGridItems(S.sessioni.slice().reverse()) + '<p class="hint">Tocca un avatar per vedere la sessione.</p></div>';
+    h += avGridItems(S.sessioni.slice().reverse(), selMode);
+    if (selMode) return h + '<button class="btn danger wide" style="margin-top:12px" data-act="del-sess"' + (selIds.length ? "" : " disabled") + ">" + (armed === "ds" ? "Tocca ancora: elimina " + selIds.length + (selIds.length === 1 ? " sessione" : " sessioni") + " e i suoi allenamenti" : selIds.length ? "Elimina " + selIds.length + (selIds.length === 1 ? " sessione" : " sessioni") : "Scegli le sessioni da eliminare") + '</button><p class="hint">Vengono eliminati anche gli allenamenti registrati in quelle sessioni. Le diete collegate solo a queste sessioni vengono eliminate.</p></div>';
+    return h + '<p class="hint">Tocca un avatar per vedere la sessione.</p></div>';
   }
   function pastGrid() {
     var cl = S.sessioni.filter(function (x) { return x.chiusa; });
@@ -828,7 +849,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   function vHome() {
     var a = attiva(), h;
     if (!a) {
-      return hdr("Sessione", "Nessuna sessione attiva", false) + '<div class="stack"><div class="card"><h3>Inizia una sessione</h3><p class="meta" style="margin:6px 0 12px">Una sessione dura 2 o 3 mesi, ha le sue schede e il suo avatar. L\'avatar parte piccolo e debole: cresce a ogni allenamento e, se completi tutti gli allenamenti della settimana, ottiene un boost d\'aura. Se ne salti, ingrassa.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>' + pastGrid() + "</div>";
+      return hdr("Sessione", "Nessuna sessione attiva", false) + '<div class="stack"><div class="card"><h3>Inizia una sessione</h3><p class="meta" style="margin:6px 0 12px">Una sessione dura da 1 a 12 mesi, ha le sue schede e il suo avatar. L\'avatar parte piccolo e debole: cresce a ogni allenamento e, se completi tutti gli allenamenti della settimana, ottiene un boost d\'aura. Se ne salti, ingrassa.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>' + pastGrid() + "</div>";
     }
     var g = progress(a), left = Math.ceil((g.end - Date.now()) / 864e5);
     h = hdr(a.nome, fd(a.start) + " – " + fd(g.end) + " · " + a.giorni + " allenamenti a settimana", false) + '<div class="stack">' + backupBanner();
@@ -872,26 +893,37 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     } else if (s.esercizi.length) h += '<button class="btn primary wide" data-act="start" data-id="' + s.id + '">Inizia allenamento</button>';
     return h + "</div>";
   }
+  function exMeta(e) { return e.serie + " serie · " + esc(e.reps) + " rip · recupero " + fmtRec(e.rec); }
   function vWorkout() {
-    var w = session, h = hdr(w.schedaNome, "", false) + '<div class="stack"><div class="card chrono"><span class="l">Durata scheda<small>Non mettere in stand by: tieni lo schermo acceso</small></span><b id="elapsed">0:00</b></div>';
+    var w = session, nd = w.ex.filter(function (e) { return e.completed; }).length;
+    var h = hdr(w.schedaNome, nd + " di " + w.ex.length + " esercizi completati", false) + '<div class="stack"><div class="card chrono"><span class="l">Durata scheda<small>Non mettere in stand by: tieni lo schermo acceso</small></span><b id="elapsed">0:00</b></div>';
     w.ex.forEach(function (e, ei) {
-      var prevSup = ei > 0 && w.ex[ei - 1].sup, cnt = 0;
-      h += '<div class="card"><div class="exhead"><div class="grow"><h3>' + esc(e.nome) + "</h3>" + (prevSup ? '<p class="meta" style="margin:2px 0 0">Superset con ' + esc(w.ex[ei - 1].nome) + ": niente pausa tra i due</p>" : "") + "</div>" + gifImg(e.gif) + "</div>";
-      h += '<div class="chips"><span>' + e.serie + ' serie</span><span>' + esc(e.reps) + ' rip</span><span>recupero ' + fmtRec(e.rec) + "</span>" + (e.sup ? '<span class="ss">Superset ↓</span>' : "") + (e.riscal ? "<span>" + e.riscal + " risc.</span>" : "") + "</div>";
-      if (e.note) h += '<p class="meta"><i>' + esc(e.note) + "</i></p>";
-      h += '<p class="hint">' + (e.prev && e.prev.length ? "Ultima volta" + (e.prevTs ? " (" + fd(e.prevTs) + ")" : "") + ": " + e.prev.map(function (s) { return kgf(num(s.kg)) + " kg × " + s.reps; }).join(" · ") : "Prima volta: inserisci i carichi.") + " Tocca il numero della serie per segnarla come riscaldamento (R).</p>";
-      h += '<div class="sets"><div class="h">Serie</div><div class="h">kg</div><div class="h">Rip</div><div class="h"></div>';
-      e.sets.forEach(function (s, si) {
-        if (!s.w) cnt++;
-        h += '<div class="rowc' + (s.done ? " done" : "") + '" data-row="' + ei + "-" + si + '"><button class="sn' + (s.w ? " w" : "") + '" data-act="toggle-w" data-e="' + ei + '" data-s="' + si + '" aria-label="Serie ' + (s.w ? "di riscaldamento" : cnt) + '">' + (s.w ? "R" : cnt) + '</button><input inputmode="decimal" data-f="kg" data-e="' + ei + '" data-s="' + si + '" value="' + esc(s.kg) + '" aria-label="Kg serie ' + (si + 1) + '"><input inputmode="numeric" data-f="reps" data-e="' + ei + '" data-s="' + si + '" value="' + esc(s.reps) + '" aria-label="Ripetizioni serie ' + (si + 1) + '"><button class="ck' + (armed === "u" + ei + "-" + si ? " armed" : "") + '" data-act="set-done" data-e="' + ei + '" data-s="' + si + '" aria-label="' + (s.done ? "Serie fatta: tocca per togliere" : "Segna serie fatta") + '">' + (armed === "u" + ei + "-" + si ? "?" : "✓") + '</button></div>';
-      });
-      h += '</div><div class="row" style="margin-top:10px"><button class="btn small" data-act="add-set" data-e="' + ei + '">+ Serie</button><button class="btn small" data-act="rm-set" data-e="' + ei + '">− Serie</button></div></div>';
+      var n = e.sets.filter(function (x) { return x.done; }).length;
+      h += '<button class="xrow' + (e.completed ? " ok" : n ? " part" : "") + '" data-act="open-ex" data-e="' + ei + '"><span class="dot">✓</span><span class="grow"><b class="xn">' + esc(e.nome) + '</b><span class="meta">' + e.serie + " serie · " + esc(e.reps) + " ripetizioni · recupero " + fmtRec(e.rec) + (n && !e.completed ? " · " + n + "/" + e.sets.length + " fatte" : "") + (e.sup ? " · superset ↓" : "") + "</span></span>" + gifImg(e.gif, "md") + "</button>";
     });
-    return h + '<p class="hint">Le GIF sono di Gym visual (gymvisual.com), tramite il dataset hasaneyldrm/exercises-dataset.</p></div>';
+    return h + '<p class="hint">Tocca un esercizio per aprirlo. Con «Fine scheda» l\'allenamento viene salvato come fatto. Le GIF sono di Gym visual (gymvisual.com), tramite il dataset hasaneyldrm/exercises-dataset.</p></div>';
+  }
+  function vEx() {
+    var w = session, ei = view.i, e = w.ex[ei]; if (!e) { view = { name: "workout" }; return vWorkout(); }
+    var h = hdr(e.nome, "Esercizio " + (ei + 1) + " di " + w.ex.length, true) + '<div class="stack"><div class="card">';
+    if (e.gif) h += gifImg(e.gif, "big");
+    h += '<div class="chips"><span>' + e.serie + ' serie</span><span>' + esc(e.reps) + ' ripetizioni</span><span>recupero ' + fmtRec(e.rec) + "</span>" + (e.sup ? '<span class="ss">Superset ↓</span>' : "") + (e.riscal ? "<span>" + e.riscal + " risc.</span>" : "") + "</div>";
+    if (e.note) h += '<p class="meta"><b>Note:</b> <i>' + esc(e.note) + "</i></p>";
+    var prevSup = ei > 0 && w.ex[ei - 1].sup; if (prevSup) h += '<p class="meta">Superset con ' + esc(w.ex[ei - 1].nome) + ": niente pausa tra i due.</p>";
+    h += '<p class="hint">' + (e.prev && e.prev.length ? "Ultima volta" + (e.prevTs ? " (" + fd(e.prevTs) + ")" : "") + ": " + e.prev.map(function (s) { return kgf(num(s.kg)) + " kg × " + s.reps; }).join(" · ") : "Prima volta: inserisci i carichi.") + "</p></div>";
+    h += '<div class="card"><div class="sets"><div class="h">Serie</div><div class="h">kg</div><div class="h">Rip</div><div class="h"></div>';
+    var cnt = 0;
+    e.sets.forEach(function (s, si) {
+      if (!s.w) cnt++;
+      h += '<div class="rowc' + (s.done ? " done" : "") + '"><span class="sn' + (s.w ? " w" : "") + '">' + (s.w ? "R" : cnt) + '</span><input inputmode="decimal" data-f="kg" data-e="' + ei + '" data-s="' + si + '" value="' + esc(s.kg) + '"' + (s.done ? " readonly" : "") + ' aria-label="Kg serie ' + (si + 1) + '"><input inputmode="numeric" data-f="reps" data-e="' + ei + '" data-s="' + si + '" value="' + esc(s.reps) + '"' + (s.done ? " readonly" : "") + ' aria-label="Ripetizioni serie ' + (si + 1) + '"><button class="ck" data-act="set-done" data-e="' + ei + '" data-s="' + si + '"' + (s.done ? " disabled" : "") + ' aria-label="' + (s.done ? "Serie fatta" : "Segna serie fatta") + '">✓</button></div>';
+    });
+    var last = e.sets[e.sets.length - 1], canRm = last && last.added && !last.done;
+    h += '</div><div class="row" style="margin-top:12px"><button class="btn small" data-act="add-set" data-e="' + ei + '">+ Aggiungi serie</button><button class="btn small" data-act="rm-set" data-e="' + ei + '"' + (canRm ? "" : " disabled") + '>− Togli serie aggiunta</button></div><p class="hint">Cambia kg e ripetizioni quando vuoi, finché la serie non è fatta. Una serie segnata come fatta non si può annullare; si possono togliere solo quelle aggiunte da te.</p></div>';
+    return h + "</div>";
   }
   function vProfilo() {
     var p = S.profile, nSess = S.sessioni.filter(function (x) { return x.chiusa; }).length;
-    var h = hdr(p.nome || "Profilo", p.nome ? "Profilo" : "Inserisci i tuoi dati", false) + '<div class="stack">' + backupBanner();
+    var h = hdr(p.nome || "Profilo", p.nome ? "Profilo" : "Inserisci i tuoi dati", false, '<button class="btn small" data-act="open-tema">Tema app</button>') + '<div class="stack">' + backupBanner();
     h += '<div class="card"><div class="row" style="gap:14px"><div class="pfoto">' + (p.foto ? '<img src="' + esc(p.foto) + '" alt="Foto profilo">' : '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>') + '</div><div class="grow"><label class="btn small" for="p-foto" style="display:inline-block">' + (p.foto ? "Cambia foto" : "Aggiungi foto") + '</label><input type="file" id="p-foto" accept="image/*" hidden></div></div>';
     h += '<div class="field" style="margin-top:14px"><label for="p-nome">Nome</label><input id="p-nome" data-p="nome" value="' + esc(p.nome) + '" autocomplete="off"></div>';
     h += '<div class="grid3" style="margin:0"><div class="field"><label for="p-eta">Età</label><input id="p-eta" data-p="eta" inputmode="numeric" value="' + esc(p.eta) + '"></div><div class="field"><label for="p-altezza">Altezza cm</label><input id="p-altezza" data-p="altezza" inputmode="numeric" value="' + esc(p.altezza) + '"></div><div class="field"><label for="p-peso">Peso kg</label><input id="p-peso" data-p="peso" inputmode="decimal" value="' + esc(p.peso) + '"></div></div>';
@@ -916,7 +948,8 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   ];
   function tabOf() { return view.name === "sess" && view.from === "profilo" ? "profilo" : TABS.some(function (t) { return t.v === view.name; }) ? view.name : "home"; }
   function barHTML() {
-    if (view.name === "workout") return '<div class="wk"><div id="restbox"></div><div class="grid2"><button class="btn" data-act="cancel-workout">' + (armed === "cw" ? "Tocca ancora: annulla" : "Annulla") + '</button><button class="btn primary" data-act="finish">Termina</button></div></div>';
+    if (view.name === "workout") return '<div class="wk"><div id="restbox"></div><div class="grid2"><button class="btn" data-act="cancel-workout">' + (armed === "cw" ? "Tocca ancora: annulla" : "Annulla") + '</button><button class="btn primary" data-act="finish">' + (armed === "ff" ? "Tocca ancora: salva" : "Fine scheda") + "</button></div></div>";
+    if (view.name === "wex") { var xe = session && session.ex[view.i], ad = xe && xe.sets.every(function (q) { return q.done; }); return '<div class="wk"><div id="restbox"></div><button class="btn primary wide" data-act="ex-done"' + (ad ? "" : " disabled") + ">" + (ad ? "Fatto" : "Fatto (completa tutte le serie)") + "</button></div>"; }
     var cur = tabOf();
     return '<nav class="tabs" aria-label="Principale">' + TABS.map(function (t) { return '<button class="tab" data-act="tab" data-v="' + t.v + '"' + (cur === t.v ? ' aria-current="page"' : "") + '><span class="pl"><svg viewBox="0 0 24 24">' + t.i + "</svg></span>" + t.t + "</button>"; }).join("") + "</nav>";
   }
@@ -946,8 +979,9 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   function sheetHTML() {
     if (!sheet) return "";
     var k = sheet, a = attiva();
-    if (k.kind !== "sess" && k.kind !== "graf" && k.kind !== "pr" && k.kind !== "fine" && k.kind !== "dieta" && !a) return "";
+    if (k.kind !== "sess" && k.kind !== "graf" && k.kind !== "pr" && k.kind !== "fine" && k.kind !== "dieta" && k.kind !== "tema" && !a) return "";
     if (k.kind === "dieta") return dietSheet();
+    if (k.kind === "tema") return temaSheet();
     if (k.kind === "fine") return fineHTML();
     if (k.kind === "graf") return grafHTML();
     if (k.kind === "pr") return prHTML();
@@ -955,7 +989,8 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       var pf = S.profile, b = '<p class="meta" style="margin:0 0 12px">Scegli peso, obiettivo e allenamenti a settimana. Gli altri dati vengono dal profilo. L\'avatar parte piccolo e debole e cresce con i tuoi allenamenti.</p>';
       b += '<div class="field"><label for="x-nome">Nome (facoltativo)</label><input id="x-nome" data-sf="nome" value="' + esc(k.nome) + '" placeholder="Sessione ' + (S.sessioni.length + 1) + '" autocomplete="off"></div>';
       b += '<div class="grid2"><div class="field"><label for="x-peso">Peso attuale kg</label><input id="x-peso" data-sf="peso" inputmode="decimal" value="' + esc(k.peso) + '"></div><div class="field"><label for="x-ob">Obiettivo della sessione</label><select id="x-ob" data-sf="obiettivo">' + OBJ.map(function (o) { return "<option" + (o === k.obiettivo ? " selected" : "") + ">" + o + "</option>"; }).join("") + "</select></div></div>";
-      b += '<div class="grid2"><div class="field"><label for="x-gg">Allenamenti a settimana</label><select id="x-gg" data-sf="giorni">' + [1, 2, 3, 4, 5, 6, 7].map(function (n) { return "<option" + (n === Number(k.giorni) ? " selected" : "") + ">" + n + "</option>"; }).join("") + '</select></div><div class="field"><label for="x-mesi">Durata</label><select id="x-mesi" data-sf="mesi"><option value="2"' + (Number(k.mesi) === 2 ? " selected" : "") + '>2 mesi</option><option value="3"' + (Number(k.mesi) === 3 ? " selected" : "") + ">3 mesi</option></select></div></div>";
+      b += '<div class="grid2"><div class="field"><label for="x-gg">Allenamenti a settimana</label><select id="x-gg" data-sf="giorni">' + [1, 2, 3, 4, 5, 6, 7].map(function (n) { return "<option" + (n === Number(k.giorni) ? " selected" : "") + ">" + n + "</option>"; }).join("") + '</select></div><div class="field"><label for="x-mesi">Durata</label><select id="x-mesi" data-sf="mesi">' + [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(function (n) { return '<option value="' + n + '"' + (Number(k.mesi) === n ? " selected" : "") + ">" + n + (n === 1 ? " mese" : " mesi") + "</option>"; }).join("") + "</select></div></div>";
+      if (S.diete.length) b += '<div class="field"><label for="x-dieta">Dieta (facoltativa)</label><select id="x-dieta" data-sf="dieta"><option value="">Nessuna dieta</option>' + S.diete.map(function (x) { return '<option value="' + x.id + '"' + (k.dieta === x.id ? " selected" : "") + ">" + esc(x.nome) + "</option>"; }).join("") + "</select></div>";
       b += '<p class="hint" style="margin:0 0 12px">Dal profilo: ' + (pf.altezza ? "altezza " + esc(pf.altezza) + " cm" : "altezza mancante") + " · " + (pf.eta ? esc(pf.eta) + " anni" : "età mancante") + (pf.altezza && pf.eta ? "." : ". Completali nel Profilo per un avatar più fedele.") + "</p>";
       b += '<div class="meta" style="margin:0 0 6px;font-weight:600">Avatar</div><div class="grid3" style="margin-bottom:14px">' + AVK.map(function (t) { return '<button class="avopt" data-act="pick-tipo" data-t="' + t + '" aria-pressed="' + (k.tipo === t) + '">' + avatarSVG(t, { p: 0 }, { altezza: pf.altezza, peso: k.peso, obiettivo: k.obiettivo }) + "<b>" + AV[t] + "</b></button>"; }).join("") + "</div>";
       return sheetShell("Nuova sessione", b, okFoot("Inizia"));
@@ -980,7 +1015,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   function render() {
     try {
       var app = document.getElementById("app");
-      app.innerHTML = view.name === "home" ? vHome() : view.name === "scheda" ? vScheda() : view.name === "workout" ? vWorkout() : view.name === "cal" ? vCal() : view.name === "sess" ? vSess() : view.name === "dieta" ? vDieta() : vProfilo();
+      app.innerHTML = view.name === "home" ? vHome() : view.name === "scheda" ? vScheda() : view.name === "workout" ? vWorkout() : view.name === "wex" ? vEx() : view.name === "cal" ? vCal() : view.name === "sess" ? vSess() : view.name === "dieta" ? vDieta() : vProfilo();
       document.querySelector("#bar .in").innerHTML = barHTML();
       var oldSh = document.querySelector(".sheet"), keep = oldSh ? oldSh.scrollTop : 0;
       document.getElementById("sheetwrap").innerHTML = sheetHTML();
@@ -988,6 +1023,32 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       if (sheet && !oldSh) { var f = document.querySelector(".sheet [data-focus]"); if (f) f.focus(); }
       updateTimer();
     } catch (e) { showErr(e && e.message ? e.message : String(e)); }
+  }
+  /* ---------- tema ---------- */
+  var PALS = [
+    { id: "blu", n: "Blu", h: 227, l: 52 }, { id: "smeraldo", n: "Smeraldo", h: 155, l: 33 }, { id: "arancio", n: "Arancio", h: 22, l: 43 },
+    { id: "viola", n: "Viola", h: 268, l: 50 }, { id: "rosso", n: "Rosso", h: 355, l: 47 }, { id: "rosa", n: "Rosa", h: 322, l: 46 },
+    { id: "turchese", n: "Turchese", h: 187, l: 32 }, { id: "oro", n: "Oro", h: 42, l: 34 }, { id: "grafite", n: "Grafite", h: 215, g: 1, l: 24, ld: 86 }
+  ];
+  function hsl(h, s, l) { return "hsl(" + h + "," + s + "%," + l + "%)"; }
+  function palVars(p, dark) {
+    var h = p.h, g = p.g ? 0 : 1;
+    return dark
+      ? { bg: hsl(h, 28 * g, 8), surface: hsl(h, 24 * g, 12.5), surface2: hsl(h, 22 * g, 17.5), ink: hsl(h, 25 * g, 93), muted: hsl(h, 12 * g, 65), line: hsl(h, 20 * g, 23), accent: hsl(h, p.g ? 0 : 88, p.ld || 72), "accent-ink": hsl(h, 40 * g, 8) }
+      : { bg: hsl(h, 22 * g, 94), surface: hsl(h, 20 * g, 99), surface2: hsl(h, 25 * g, 89), ink: hsl(h, 30 * g, 12), muted: hsl(h, 12 * g, 38), line: hsl(h, 20 * g, 83), accent: hsl(h, p.g ? 0 : 74, p.l || 46), "accent-ink": "#fff" };
+  }
+  function isDark() { var m = (S.tema || {}).mode; return m === "dark" || (m !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches); }
+  function applyTheme() {
+    var T = S.tema || {}, p = PALS.find(function (x) { return x.id === T.pal; }) || PALS[0], dark = isDark(), v = palVars(p, dark), r = document.documentElement;
+    Object.keys(v).forEach(function (k) { r.style.setProperty("--" + k, v[k]); });
+    r.setAttribute("data-theme", dark ? "dark" : "light"); r.style.colorScheme = dark ? "dark" : "light";
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", v.accent);
+  }
+  try { if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if ((S.tema || {}).mode === "auto") applyTheme(); }); } catch (e) {}
+  function temaSheet() {
+    var T = S.tema, dark = isDark(), b = '<div class="meta" style="margin:0 0 6px;font-weight:600">Aspetto</div><div class="seg" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">' + [["auto", "Automatico"], ["light", "Chiaro"], ["dark", "Scuro"]].map(function (m) { return '<button data-act="tema-mode" data-m="' + m[0] + '" aria-pressed="' + (T.mode === m[0]) + '">' + m[1] + "</button>"; }).join("") + "</div>";
+    b += '<div class="meta" style="margin:0 0 6px;font-weight:600">Colori</div><div class="swg">' + PALS.map(function (p) { var v = palVars(p, dark); return '<button class="sw" data-act="tema-pal" data-p="' + p.id + '" aria-pressed="' + (T.pal === p.id) + '" style="background:' + v.surface + ';color:' + v.ink + '"><i style="background:' + v.bg + '"><b style="background:' + v.accent + '"></b></i><span>' + p.n + "</span></button>"; }).join("") + "</div>";
+    return sheetShell("Tema app", b, '<button class="btn primary wide" data-act="close-sheet">Fatto</button>');
   }
   /* ---------- dieta ---------- */
   var DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
@@ -1159,7 +1220,8 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     if (c === "carbo") return ["Barilla", "Mulino Bianco"]; return [];
   }
   function todayI() { return (new Date().getDay() + 6) % 7; }
-  function curDiet() { var l = S.diete; return l.length ? (l.find(function (x) { return x.id === dCur; }) || l[l.length - 1]) : null; }
+  function dietActive(d) { return (d.sess || []).some(function (id) { var x = S.sessioni.find(function (q) { return q.id === id; }); return x && !x.chiusa; }); }
+  function curDiet() { var l = S.diete; return l.length ? (l.find(function (x) { return x.id === dCur; }) || l.filter(dietActive)[0] || l[l.length - 1]) : null; }
   function dayHTML(plan, i) {
     var h = "";
     if (!plan[i] || !plan[i].length) return '<p class="meta">Niente in programma.</p>';
@@ -1172,9 +1234,10 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   }
   function vDieta() {
     var d = curDiet();
-    if (!d) return hdr("Dieta", "Piano settimanale e lista della spesa", false) + '<div class="stack"><div class="card"><h3>Carica la tua dieta</h3><p class="meta" style="margin:6px 0 12px">Dammi il PDF con i cibi e quante volte a settimana vanno mangiati. Aggiungo cibi simili, tu scegli quali evitare, e creo il piano settimanale con la lista della spesa. Poi puoi abbinare la dieta a una o più sessioni di allenamento.</p><button class="btn primary wide" data-act="d-new">Carica PDF della dieta</button></div></div>';
-    var ti = todayI(), h = hdr("Dieta", d.nome, false) + '<div class="stack">';
-    if (S.diete.length > 1) h += '<div class="eqs">' + S.diete.map(function (x) { return '<button class="eq" data-act="d-pick" data-id="' + x.id + '" aria-pressed="' + (x.id === d.id) + '">' + esc(x.nome) + "</button>"; }).join("") + "</div>";
+    if (!d) return hdr("Dieta", "Piano settimanale e lista della spesa", false) + '<div class="stack"><div class="card"><h3>Carica la tua dieta</h3><p class="meta" style="margin:6px 0 12px">Dammi il PDF con i cibi e quante volte a settimana vanno mangiati. Aggiungo cibi simili, tu scegli quali evitare, e creo il piano settimanale con la lista della spesa. La dieta va collegata a una o più sessioni e finisce quando finiscono le sessioni.</p>' + (S.sessioni.length ? '<button class="btn primary wide" data-act="d-new">Carica PDF della dieta</button>' : '<p class="banner">Prima serve una sessione a cui collegarla.</p><button class="btn primary wide" style="margin-top:10px" data-act="new-sess">Inizia sessione</button>') + "</div></div>";
+    var ti = todayI(), act = dietActive(d), lk = d.sess.map(function (id) { var x = S.sessioni.find(function (q) { return q.id === id; }); return x ? x.nome : ""; }).filter(Boolean).join(", "), h = hdr("Dieta", d.nome + " · " + (act ? "attiva" : "conclusa") + (lk ? " · " + lk : ""), false) + '<div class="stack">';
+    if (!act) h += '<div class="banner"><b>Dieta conclusa</b>Le sessioni collegate sono finite. Collegala a una sessione in corso, in fondo alla pagina, per riusarla.</div>';
+    if (S.diete.length > 1) h += '<div class="eqs">' + S.diete.map(function (x) { return '<button class="eq" data-act="d-pick" data-id="' + x.id + '" aria-pressed="' + (x.id === d.id) + '">' + esc(x.nome) + (dietActive(x) ? "" : " · conclusa") + "</button>"; }).join("") + "</div>";
     h += '<div class="seg"><button data-act="d-tab" data-t="piano" aria-pressed="' + (dTab === "piano") + '">Piano</button><button data-act="d-tab" data-t="spesa" aria-pressed="' + (dTab === "spesa") + '">Spesa</button></div>';
     if (dTab === "piano") {
       var open = dOpen === null ? ti : dOpen;
@@ -1190,7 +1253,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       });
       if (done) h += '<button class="btn wide" data-act="d-reset">Azzera le spunte</button>';
     }
-    h += '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Abbinata alle sessioni</div>' + dietChips(d, "d-psess") + '<div class="grid2" style="margin-top:14px"><button class="btn" data-act="d-edit">Modifica cibi</button><button class="btn" data-act="d-regen">Rigenera piano</button></div></div>';
+    h += '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Collegata alle sessioni</div>' + dietChips(d, "d-psess") + '<p class="hint">Resta sempre collegata ad almeno una sessione e finisce quando finiscono tutte.</p>' + '<div class="grid2" style="margin-top:14px"><button class="btn" data-act="d-edit">Modifica cibi</button><button class="btn" data-act="d-regen">Rigenera piano</button></div></div>';
     h += '<div class="grid2"><button class="btn dashed" data-act="d-new">+ Nuova dieta (PDF)</button><button class="btn danger" data-act="d-del">' + (armed === "dd" ? "Tocca ancora" : "Elimina dieta") + "</button></div>";
     return h + "</div>";
   }
@@ -1224,7 +1287,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     });
     if (sg) b2 += '<div class="meta" style="margin:16px 0 0;font-weight:600">Cibi simili che puoi aggiungere</div>' + sg;
     b2 += '<div class="field" style="margin-top:16px"><label for="d-add">Aggiungi un altro cibo</label><div class="row"><input id="d-add" data-sf="add" placeholder="Es. Pollo al limone" autocomplete="off" style="flex:1"><button class="btn small" data-act="d-addf">Aggiungi</button></div></div>';
-    b2 += '<div class="meta" style="margin:8px 0 6px;font-weight:600">Abbina la dieta alle sessioni</div>' + dietChips(k, "d-sess") + '<div style="height:14px"></div>';
+    b2 += '<div class="meta" style="margin:8px 0 6px;font-weight:600">Collega la dieta a una sessione (obbligatorio)</div>' + dietChips(k, "d-sess") + '<div style="height:14px"></div>';
     if (k.err) b2 += '<div class="banner exp" style="margin-bottom:12px">' + esc(k.err) + "</div>";
     return sheetShell(k.editId ? "Modifica cibi" : "Scegli i cibi", b2, '<div class="grid2"><button class="btn" data-act="close-sheet">Annulla</button><button class="btn primary" data-act="d-make">' + (k.editId ? "Aggiorna piano" : "Crea piano") + "</button></div>");
   }
@@ -1244,6 +1307,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   }
   function dietMake() {
     var k = sheet, foods = k.foods.filter(function (f) { return f.on; });
+    if (!k.sess.length) { k.err = "Collega la dieta ad almeno una sessione."; render(); return; }
     if (!foods.length) { k.err = "Lascia almeno un cibo."; render(); return; }
     var d = k.editId && S.diete.find(function (x) { return x.id === k.editId; });
     if (d) { d.nome = k.nome.trim() || d.nome; d.foods = k.foods; d.sess = k.sess.slice(); d.seed = (d.seed || 0) + 1; }
@@ -1370,13 +1434,13 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       var le = lastEntry(e.id, e.nome), prev = le ? le.sets : null, n = Math.max(1, parseInt(e.serie, 10) || 3), r0 = (String(e.reps).match(/\d+/) || [""])[0], sets = [], i;
       for (i = 0; i < (e.riscal || 0); i++) sets.push({ kg: "", reps: r0, done: false, w: true });
       for (i = 0; i < n; i++) { var p = prev && (prev[i] || prev[prev.length - 1]); sets.push({ kg: p ? String(p.kg) : "", reps: p ? String(p.reps) : r0, done: false }); }
-      return { id: e.id, nome: e.nome, serie: e.serie, reps: e.reps, rec: Number(e.rec) || 0, note: e.note, gif: e.gif || "", sup: !!e.sup, riscal: e.riscal || 0, prev: prev, prevTs: le ? le.ts : 0, sets: sets };
+      return { completed: false, id: e.id, nome: e.nome, serie: e.serie, reps: e.reps, rec: Number(e.rec) || 0, note: e.note, gif: e.gif || "", sup: !!e.sup, riscal: e.riscal || 0, prev: prev, prevTs: le ? le.ts : 0, sets: sets };
     }) };
     view = { name: "workout" }; timer = null; saveSess(); window.scrollTo(0, 0); render();
     clearInterval(tick); tick = setInterval(updateTimer, 500);
   }
   function updateTimer() {
-    if (view.name !== "workout" || !session) { clearInterval(tick); return; }
+    if ((view.name !== "workout" && view.name !== "wex") || !session) { clearInterval(tick); return; }
     var el = document.getElementById("elapsed"); if (el) el.textContent = fmtDur(Date.now() - session.t0);
     var box = document.getElementById("restbox"); if (!box) return;
     if (!timer) { box.innerHTML = ""; return; }
@@ -1388,8 +1452,8 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   }
   function finishWorkout() {
     var n = 0; session.ex.forEach(function (e) { e.sets.forEach(function (x) { if (x.done) n++; }); });
-    if (!n) { toast("Segna almeno una serie con ✓"); return; }
-    sheet = { kind: "fine", fat: 3, nota: "" }; render();
+    if (!n) { toast("Segna almeno una serie come fatta"); return; }
+    if (!confirmed("ff")) return; doFinish({});
   }
   function doFinish(k) {
     var out = [];
@@ -1398,7 +1462,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       if (sets.length) out.push({ id: e.id, nome: e.nome, sets: sets });
     });
     var a = attiva(), g0 = a ? progress(a) : null, prs = findPRs(out);
-    var entry = { id: uid(), ts: Date.now(), sid: session.sid, schedaId: session.schedaId, schedaNome: session.schedaNome, durMin: Math.max(1, Math.round((Date.now() - session.t0) / 60000)), durSec: Math.round((Date.now() - session.t0) / 1000), ex: out, fat: k.fat || 3, nota: String(k.nota || "").trim().slice(0, 400), prs: prs };
+    var entry = { id: uid(), ts: Date.now(), sid: session.sid, schedaId: session.schedaId, schedaNome: session.schedaNome, durMin: Math.max(1, Math.round((Date.now() - session.t0) / 60000)), durSec: Math.round((Date.now() - session.t0) / 1000), ex: out, fat: 0, nota: "", prs: prs };
     LOG.unshift(entry); saveLocal();
     if (logCol) logCol.doc(entry.id).set(entry).catch(function () { toast("Salvato solo su questo dispositivo"); });
     var msg = "Allenamento salvato"; if (a) { var g1 = progress(a); msg += g1.pend && !g0.pend ? " · settimana completa: boost d'aura!" : " · l'avatar cresce"; }
@@ -1433,7 +1497,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     var cur = attiva(), s = cur && getScheda(cur, d.id);
     switch (a) {
       case "tab": go(d.v); break;
-      case "d-new": sheet = { kind: "dieta", step: "src", txt: "", err: "", busy: false, foods: [], nome: "", add: "", sess: cur ? [cur.id] : [] }; render(); break;
+      case "d-new": if (!S.sessioni.length) { toast("Prima crea una sessione: la dieta va collegata a una sessione"); break; } sheet = { kind: "dieta", step: "src", txt: "", err: "", busy: false, foods: [], nome: "", add: "", sess: cur ? [cur.id] : [] }; render(); break;
       case "d-parse": dietParse(); break;
       case "d-f": var ff = sheet.foods.find(function (x) { return x.id === d.id; }); if (ff) ff.freq = clamp(ff.freq + Number(d.d), 1, 14); render(); break;
       case "d-sim":
@@ -1444,7 +1508,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
         var nm = String(sheet.add || "").trim(); if (nm.length < 3) { toast("Scrivi il nome del cibo"); break; }
         var c2 = catOf(nm); sheet.foods.push({ id: uid(), nome: titleCase(nm), cat: c2, qt: DC[c2].q, unit: DC[c2].u, freq: DC[c2].f, slots: slotsFor(nm, c2), on: true, src: "man" }); sheet.add = ""; render(); break;
       case "d-sess": var si = sheet.sess.indexOf(d.id); if (si >= 0) sheet.sess.splice(si, 1); else sheet.sess.push(d.id); render(); break;
-      case "d-psess": var dp = curDiet(), pi = dp.sess.indexOf(d.id); if (pi >= 0) dp.sess.splice(pi, 1); else dp.sess.push(d.id); saveApp(); render(); break;
+      case "d-psess": var dp = curDiet(), pi = dp.sess.indexOf(d.id); if (pi >= 0 && dp.sess.length === 1) { toast("La dieta deve restare collegata ad almeno una sessione"); break; } if (pi >= 0) dp.sess.splice(pi, 1); else dp.sess.push(d.id); saveApp(); render(); break;
       case "d-make": dietMake(); break;
       case "d-tab": dTab = d.t; render(); break;
       case "d-day": var di = Number(d.i), dop = dOpen === null ? todayI() : dOpen; dOpen = dop === di ? -1 : di; render(); break;
@@ -1455,7 +1519,8 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
       case "d-edit": var de = curDiet(); sheet = { kind: "dieta", step: "rev", editId: de.id, nome: de.nome, foods: clone(de.foods), err: "", add: "", sess: (de.sess || []).slice() }; render(); break;
       case "d-del": if (!confirmed("dd")) return; var dx0 = curDiet(); S.diete = S.diete.filter(function (x) { return x.id !== dx0.id; }); dCur = null; saveApp(); render(); toast("Dieta eliminata"); break;
       case "open-scheda": view = { name: "scheda", id: d.id }; edit = false; render(); window.scrollTo(0, 0); break;
-      case "back": view = view.name === "sess" && view.from === "profilo" ? { name: "profilo" } : { name: "home" }; edit = false; render(); window.scrollTo(0, 0); break;
+      case "back": if (view.name === "wex") { view = { name: "workout" }; render(); window.scrollTo(0, 0); break; }
+        view = view.name === "sess" && view.from === "profilo" ? { name: "profilo" } : { name: "home" }; edit = false; render(); window.scrollTo(0, 0); break;
       case "open-sess": var xs = S.sessioni.find(function (q) { return q.id === d.id; }); if (!xs) break; view = xs.chiusa ? { name: "sess", id: xs.id, from: view.name === "profilo" ? "profilo" : "home" } : { name: "home" }; render(); window.scrollTo(0, 0); break;
       case "hist-m": hm = d.m; render(); break;
       case "toggle-edit": edit = !edit; armed = ""; render(); break;
@@ -1482,26 +1547,39 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
         s.esercizi = s.esercizi.filter(function (x) { return x.id !== d.eid; }); saveApp(); render(); break;
       case "up-es": case "down-es":
         move(s.esercizi, s.esercizi.findIndex(function (x) { return x.id === d.eid; }), a === "up-es" ? -1 : 1); saveApp(); render(); break;
+      case "sel-mode": selMode = !selMode; selIds = []; armed = ""; render(); break;
+      case "sel-sess": var sx = selIds.indexOf(d.id); if (sx >= 0) selIds.splice(sx, 1); else selIds.push(d.id); armed = ""; render(); break;
+      case "del-sess":
+        if (!selIds.length) break; if (!confirmed("ds")) return;
+        var gone = selIds.slice(), nl = LOG.filter(function (l) { return gone.indexOf(l.sid) >= 0; }), nd0 = S.diete.length;
+        S.sessioni = S.sessioni.filter(function (x) { return gone.indexOf(x.id) < 0; });
+        LOG = LOG.filter(function (l) { return gone.indexOf(l.sid) < 0; });
+        if (logCol) nl.forEach(function (l) { logCol.doc(l.id).delete().catch(function () {}); });
+        S.diete.forEach(function (x) { x.sess = x.sess.filter(function (q) { return gone.indexOf(q) < 0; }); });
+        S.diete = S.diete.filter(function (x) { return x.sess.length; }); dCur = null;
+        if (session && gone.indexOf(session.sid) >= 0) { session = null; saveSess(); wakeOff(); timer = null; }
+        selMode = false; selIds = []; saveApp(); render();
+        toast(gone.length + (gone.length === 1 ? " sessione eliminata" : " sessioni eliminate") + (nd0 > S.diete.length ? " · " + (nd0 - S.diete.length) + " diete collegate eliminate" : "")); break;
+      case "tema-mode": S.tema.mode = d.m; saveApp(); applyTheme(); render(); break;
+      case "tema-pal": S.tema.pal = d.p; saveApp(); applyTheme(); render(); break;
+      case "open-tema": sheet = { kind: "tema" }; render(); break;
       case "close-sheet": closeSheet(); break;
       case "close-sheet-bg": if (d.direct) closeSheet(); break;
       case "save-sheet": saveSheet(); break;
       case "start": startWorkout(d.id); break;
+      case "open-ex": view = { name: "wex", i: Number(d.e) }; render(); window.scrollTo(0, 0); break;
+      case "ex-done": var xd = session.ex[view.i]; if (xd && xd.sets.every(function (q) { return q.done; })) { xd.completed = true; saveSess(); view = { name: "workout" }; render(); window.scrollTo(0, 0); } break;
       case "set-done":
         unlockAudio();
-        var st = session.ex[d.e].sets[d.s], ex0 = session.ex[d.e];
-        if (st.done && !confirmed("u" + d.e + "-" + d.s)) { toast("Tocca ancora per togliere la serie"); return; }
-        st.done = !st.done;
-        var row = document.querySelector('[data-row="' + d.e + "-" + d.s + '"]'); if (row) row.classList.toggle("done", st.done);
-        if (st.done) {
-          var lastSet = Number(d.s) === ex0.sets.length - 1;
-          if (ex0.sup && session.ex[Number(d.e) + 1] && !st.w) { timer = null; toast("Superset: passa a " + session.ex[Number(d.e) + 1].nome); }
-          else if (st.w) timer = { end: Date.now() + Math.min(ex0.rec || 45, 45) * 1000 };
-          else if (ex0.rec > 0) timer = { end: Date.now() + ex0.rec * 1000 };
-        } else timer = null;
-        saveSess(); updateTimer(); break;
-      case "toggle-w": var tw = session.ex[d.e].sets[d.s]; tw.w = !tw.w; saveSess(); render(); break;
-      case "add-set": var ss = session.ex[d.e].sets, lp = ss[ss.length - 1]; ss.push({ kg: lp ? lp.kg : "", reps: lp ? lp.reps : "", done: false }); saveSess(); render(); break;
-      case "rm-set": if (session.ex[d.e].sets.length > 1) { session.ex[d.e].sets.pop(); saveSess(); render(); } break;
+        var ex0 = session.ex[d.e], st = ex0.sets[d.s]; if (st.done) break;
+        st.done = true;
+        if (ex0.sets.every(function (q) { return q.done; })) { timer = null; toast("Esercizio finito: premi Fatto"); }
+        else if (ex0.sup && session.ex[Number(d.e) + 1] && !st.w) { timer = null; toast("Superset: passa a " + session.ex[Number(d.e) + 1].nome); }
+        else if (st.w) timer = { end: Date.now() + Math.min(ex0.rec || 45, 45) * 1000 };
+        else if (ex0.rec > 0) timer = { end: Date.now() + ex0.rec * 1000 };
+        saveSess(); render(); break;
+      case "add-set": var ss = session.ex[d.e].sets, lp = ss[ss.length - 1]; ss.push({ kg: lp ? lp.kg : "", reps: lp ? lp.reps : "", done: false, added: true }); saveSess(); render(); break;
+      case "rm-set": var rs = session.ex[d.e].sets, rl = rs[rs.length - 1]; if (rl && rl.added && !rl.done) { rs.pop(); saveSess(); render(); } else toast("Puoi togliere solo le serie che hai aggiunto"); break;
       case "skip-rest": timer = null; updateTimer(); break;
       case "finish": finishWorkout(); break;
       case "cancel-workout": if (!confirmed("cw")) return; session = null; saveSess(); wakeOff(); timer = null; view = { name: "home" }; render(); break;
@@ -1569,9 +1647,10 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
     if (k.kind === "sess") {
       var peso = String(k.peso || "").trim().replace(",", ".");
       if (!(num(peso) > 0)) { toast("Inserisci il tuo peso"); return; }
-      var n = { id: uid(), nome: String(k.nome || "").trim() || "Sessione " + (S.sessioni.length + 1), tipo: k.tipo, start: Date.now(), mesi: Number(k.mesi) === 3 ? 3 : 2, giorni: clamp(Number(k.giorni) || 4, 1, 7), obiettivo: k.obiettivo, altezza: S.profile.altezza, eta: S.profile.eta, peso: peso, chiusa: false, finale: null, schede: [] };
+      var n = { id: uid(), nome: String(k.nome || "").trim() || "Sessione " + (S.sessioni.length + 1), tipo: k.tipo, start: Date.now(), mesi: clamp(parseInt(k.mesi, 10) || 2, 1, 12), giorni: clamp(Number(k.giorni) || 4, 1, 7), obiettivo: k.obiettivo, altezza: S.profile.altezza, eta: S.profile.eta, peso: peso, chiusa: false, finale: null, schede: [] };
       S.profile.peso = peso; logPeso(peso);
-      S.sessioni.push(n); sheet = null; view = { name: "home" }; saveApp(); render(); window.scrollTo(0, 0); return;
+      S.sessioni.push(n); if (k.dieta) { var dl = S.diete.find(function (x) { return x.id === k.dieta; }); if (dl && dl.sess.indexOf(n.id) < 0) dl.sess.push(n.id); }
+      sheet = null; view = { name: "home" }; saveApp(); render(); window.scrollTo(0, 0); return;
     }
     var nome = val("f-nome").trim();
     if (k.kind === "scheda") {
@@ -1613,7 +1692,7 @@ button.sn { border: 0; background: transparent; padding: 0; height: 44px; }
   window.addEventListener("unhandledrejection", function (e) { showErr(e.reason && e.reason.message ? e.reason.message : "operazione non riuscita"); });
   document.addEventListener("error", function (e) { var t = e.target; if (t && t.tagName === "IMG" && t.className.indexOf("gif") >= 0) t.style.visibility = "hidden"; else if (t && t.tagName === "IMG" && t.closest && t.closest(".gifrow")) t.style.visibility = "hidden"; }, true);
   document.addEventListener("visibilitychange", function () { if (!document.hidden && session) wakeOn(); if (!document.hidden && view.name === "profilo") refreshAuto(); });
-  loadLocal(); restoreSess(); render(); initCloud();
+  loadLocal(); applyTheme(); restoreSess(); render(); initCloud();
   if (!CLOUD) { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} autoRestoreIfEmpty(); refreshAuto(); }
 })();
 </script>

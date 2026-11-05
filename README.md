@@ -49,7 +49,7 @@ Quando ne inizi una, l'app ti chiede il **peso attuale** (e aggiorna il profilo)
 e poi chiede:
 - l'**obiettivo** della sessione (ipertrofia, dimagrimento, ...);
 - quanti **allenamenti a settimana** vuoi fare;
-- la **durata**: 2 o 3 mesi;
+- la **durata**: da 1 a 12 mesi;
 - l'**avatar**: umano, orso, lupo o gorilla.
 
 Poi aggiungi le schede: puoi **generarle con l'IA**, **chiederle a un preparatore via email** oppure **inserire quelle che hai già**.
@@ -57,7 +57,13 @@ Poi aggiungi le schede: puoi **generarle con l'IA**, **chiederle a un preparator
 ### Dieta
 Nella scheda **Dieta** carichi il PDF del piano alimentare (cibi e quante volte a settimana mangiarli; se il PDF è una scansione puoi incollare il testo).
 L'app legge i cibi, ne propone di **simili** e ti chiede quali preferisci evitare. Poi crea il **piano settimanale** (si apre il giorno di oggi) e la **lista della spesa** con suggerimenti di marche e la spunta «preso».
-Ogni dieta si può **abbinare a una o più sessioni**: quella in corso mostra in home il menu di oggi. Il lettore PDF si scarica la prima volta (serve internet), poi resta in cache.
+Ogni dieta va **collegata ad almeno una sessione** (ma una sessione può anche non avere dieta, e una dieta può servire più sessioni): finisce quando finiscono le sessioni collegate, e si può riusare collegandola a una nuova sessione. La sessione in corso mostra in home il menu di oggi. Il lettore PDF si scarica la prima volta (serve internet), poi resta in cache.
+
+### Allenamento
+Avviata una scheda vedi la lista degli esercizi (nome, serie, ripetizioni, recupero e GIF). Toccane uno per aprirlo: GIF grande, note, serie con kg e ripetizioni, timer di recupero (con «Salta»). Una serie segnata come fatta non si annulla; puoi aggiungere serie e togliere solo quelle aggiunte da te. Con «Fatto» torni alla lista e l'esercizio risulta completato. «Fine scheda» salva subito l'allenamento, senza domande.
+
+### Sessioni e tema
+Dal Profilo, «Seleziona» permette di eliminare più sessioni insieme (con i loro allenamenti). «Tema app» cambia colori (9 combinazioni) e aspetto chiaro/scuro/automatico.
 
 ### Navigazione
 Tra Sessione, Calendario, Dieta e Profilo puoi anche **scorrere a destra o a sinistra**.
