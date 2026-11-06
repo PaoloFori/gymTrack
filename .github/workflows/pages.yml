@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir _site
           cp index.html manifest.webmanifest sw.js _site/
-          cp -r icons _site/icons
+          cp -r icons css js _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

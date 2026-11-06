@@ -1,13 +1,15 @@
 # GymTrack
 
-App per telefono per registrare i tuoi allenamenti, organizzata in **sessioni** da 2 o 3 mesi.
-Ogni sessione ha le sue schede e il suo **avatar**, che parte piccolo e debole e cresce con ogni allenamento.
+App per telefono (PWA, un sito statico senza server) per allenarti, seguire una dieta e vedere il tuo **avatar** crescere.
+Si organizza in **sessioni** da 1 a 12 mesi: ogni sessione ha le sue schede, il suo avatar e, se vuoi, una dieta collegata.
 
 <p>
-<img src="docs/1-sessione.png" width="220" alt="Sessione e avatar">
-<img src="docs/4-allenamento.png" width="220" alt="Allenamento in corso">
-<img src="docs/7-calendario.png" width="220" alt="Calendario">
+<img src="docs/1-sessione.png" width="200" alt="Sessione e avatar">
+<img src="docs/4-allenamento.png" width="200" alt="Allenamento in corso">
+<img src="docs/7-calendario.png" width="200" alt="Calendario">
 </p>
+
+> Gli screenshot in `docs/` sono di una versione precedente dell'interfaccia.
 
 ## Come averla sul telefono
 
@@ -26,126 +28,85 @@ Apri il link dell'app che ti è stato dato (finisce con `.github.io/...`) dal br
 Appare l'icona GymTrack nella schermata Home. Si apre a schermo intero come una vera app e,
 dopo la prima apertura, **funziona anche senza internet**.
 
-## Cosa fa
+## Le schermate
 
-### Profilo
-Foto, nome, età, altezza e peso. Qui trovi anche i **record personali**, il **grafico del peso**, **I miei avatar**
-(uno per ogni sessione, concluse e in corso), lo storico di tutti gli allenamenti e il backup dei dati.
+La barra in basso ha cinque schede; puoi anche **scorrere a destra e a sinistra** per spostarti tra loro.
 
-<img src="docs/5-profilo.png" width="220" alt="Profilo">
+- **Home**: il tuo riepilogo. Profilo (foto, età, altezza, peso), l'**avatar corrente** (animato: si allena e, se c'è una dieta collegata, mangia sano), la sessione e la dieta correnti, e il **collegamento tra sessione e dieta**.
+- **Sessioni**: la sessione corrente (tocca per vedere le schede) e lo **storico** delle sessioni passate. Da qui crei una sessione, carichi un JSON, selezioni ed elimini sessioni.
+- **Dieta**: la dieta corrente e le diete passate (ognuna con il suo titolo). Tocca una dieta per vedere **piano settimanale** (si apre il giorno di oggi) e **lista della spesa**.
+- **Calendario**: i giorni in cui ti sei allenato, con carichi, durata e note.
+- **Profilo**: dati personali, record, grafico del peso, i tuoi avatar, storico per sessione/esercizio/cronologia, notifiche, **Tema app** e backup.
 
-<img src="docs/6-avatar.png" width="240" alt="I miei avatar">
+## Sessioni
 
-### Home e sessioni passate
-La home mostra la sessione in corso e sotto le **sessioni passate** con i loro avatar. Tocca un avatar per aprire la sessione: avatar finale, schede, esercizi e tutti gli allenamenti fatti.
+Quando ne crei una, l'app ti chiede peso, **obiettivo** (ipertrofia, forza, dimagrimento, mantenimento, ricomposizione), allenamenti a settimana, **durata (1–12 mesi)** e **avatar** (uomo, donna, orso, lupo, gorilla, leone, toro). Puoi anche:
 
-<p>
-<img src="docs/14-home-passate.png" width="200" alt="Sessioni passate">
-<img src="docs/15-sessione-passata.png" width="200" alt="Dettaglio sessione">
-</p>
+- **copiare una sessione esistente** (schede e impostazioni) come punto di partenza;
+- collegare subito una dieta (facoltativo);
+- **caricare le schede da JSON** (vedi sotto).
 
-### Sessione
-Quando ne inizi una, l'app ti chiede il **peso attuale** (e aggiorna il profilo), prende altezza ed età dal profilo
-e poi chiede:
-- l'**obiettivo** della sessione (ipertrofia, dimagrimento, ...);
-- quanti **allenamenti a settimana** vuoi fare;
-- la **durata**: da 1 a 12 mesi;
-- l'**avatar**: umano, orso, lupo o gorilla.
+Le schede si possono inserire a mano, caricare da JSON o generare con l'IA (vedi sotto). Le sessioni passate si eliminano dallo storico (o dal Profilo) con **Seleziona**; vengono eliminati anche i loro allenamenti.
 
-Poi aggiungi le schede: puoi **generarle con l'IA**, **chiederle a un preparatore via email** oppure **inserire quelle che hai già**.
+### Carica da JSON
+Dallo storico, **Carica JSON** legge un file con le schede (formato in [CLAUDE.md](CLAUDE.md)) e chiede **«È la scheda corrente?»**:
+- **Sì** → le schede vanno nella sessione in corso (o ne nasce una nuova);
+- **No** → indichi periodo e **quanti allenamenti hai fatto**: l'app crea una sessione già conclusa con l'avatar che corrisponde a quel ritmo.
 
-### Dieta
-Nella scheda **Dieta** carichi il PDF del piano alimentare (cibi e quante volte a settimana mangiarli; se il PDF è una scansione puoi incollare il testo).
-L'app legge i cibi, ne propone di **simili** e ti chiede quali preferisci evitare. Poi crea il **piano settimanale** (si apre il giorno di oggi) e la **lista della spesa** con suggerimenti di marche e la spunta «preso».
-Ogni dieta va **collegata ad almeno una sessione** (ma una sessione può anche non avere dieta, e una dieta può servire più sessioni): finisce quando finiscono le sessioni collegate, e si può riusare collegandola a una nuova sessione. La sessione in corso mostra in home il menu di oggi. Il lettore PDF si scarica la prima volta (serve internet), poi resta in cache.
-
-### Allenamento
-Avviata una scheda vedi la lista degli esercizi (nome, serie, ripetizioni, recupero e GIF). Toccane uno per aprirlo: GIF grande, note, serie con kg e ripetizioni, timer di recupero (con «Salta»). Una serie segnata come fatta non si annulla; puoi aggiungere serie e togliere solo quelle aggiunte da te. Con «Fatto» torni alla lista e l'esercizio risulta completato. «Fine scheda» salva subito l'allenamento, senza domande.
-
-### Sessioni e tema
-Dal Profilo, «Seleziona» permette di eliminare più sessioni insieme (con i loro allenamenti). «Tema app» cambia colori (9 combinazioni) e aspetto chiaro/scuro/automatico.
-
-### Navigazione
-Tra Sessione, Calendario, Dieta e Profilo puoi anche **scorrere a destra o a sinistra**.
-
-### Avatar e livelli
-Sette avatar (uomo, donna, orso, lupo, gorilla, leone, toro). Il corpo va da «completamente fuori obiettivo» a «obiettivo perfetto»:
-magro → massiccio (ipertrofia), debole → bilanciere sopra la testa (forza), sovrappeso → asciutto con metro da sarta (dimagrimento), fuori allenamento → medaglia (mantenimento), morbido → tonico (ricomposizione; per dimagrimento e ricomposizione resta una sagoma sbiadita del punto di partenza).
-I nomi dei livelli cambiano con l'obiettivo (es. Esile → Colosso per l'ipertrofia, Appesantito → Scolpito per il dimagrimento).
-
-### Crea scheda
-Indichi i minuti che hai per ogni allenamento, cosa vorresti ottenere e spunti i macchinari della tua palestra (divisi per gruppo muscolare). Poi scegli:
-- **Genera con IA** (o copia il testo e incollalo in un assistente come Claude): l'IA usa profilo, obiettivo, allenamenti a settimana, minuti, attrezzi, schede passate, carichi usati, fatica e record, e propone anche superset, riscaldamento e la GIF di ogni esercizio.
-- **Invia per email**: l'app prepara una email con tutti questi dati, da mandare al tuo preparatore con la tua app email (o da copiare/condividere).
-
-<p>
-<img src="docs/11-crea.png" width="200" alt="Crea scheda">
-<img src="docs/12-email.png" width="200" alt="Richiesta per email">
-</p>
-
-### Schede e allenamento
-Ogni scheda è un giorno di allenamento. Ogni esercizio ha **serie, range di ripetizioni, tempo di recupero**, note e una **GIF dimostrativa**
-(scelta dal database di 1.300 esercizi; cerca anche in italiano: panca, squat, curl…).
-
-Quando premi **Inizia** parte il **cronometro della scheda**, che a fine allenamento diventa la durata registrata.
-Inserisci kg e ripetizioni (i carichi dell'ultima volta sono già compilati) e spunti le serie: parte il **timer di recupero**
-e, quando scade, ricevi **suono, vibrazione e notifica**.
-
-- Per ogni esercizio vedi i **pesi usati l'ultima volta** (data, kg e ripetizioni di ogni serie).
-- Se tocchi una serie già fatta, l'app ti chiede conferma prima di toglierla (tocca ancora il "?").
-- **Riscaldamento**: tocca il numero della serie per segnarla "R": non conta nel volume né nei record. Puoi anche impostare quante serie di riscaldamento prevede ogni esercizio.
-- **Superset**: spunta "Superset con l'esercizio successivo": tra i due esercizi non c'è pausa, il recupero parte dopo il secondo.
-- Se esci dall'app a metà allenamento, al ritorno ritrovi tutto (cronometro compreso). Lo schermo resta acceso durante l'allenamento.
-
-<img src="docs/3-scheda.png" width="240" alt="Scheda">
-
-### Calendario
-Un calendario tutto dentro l'app, non collegato a quello del telefono. Nei giorni in cui ti alleni compare 🏋️,
-negli altri giorni la cella resta vuota. Tocca un giorno con 🏋️ per vedere schede, carichi, durata, fatica e note.
-
-### Fine allenamento, record e grafici
-- Quando premi **Termina** indichi quanto è stato faticoso (da 1 a 5) e puoi scrivere una nota.
-- Se hai battuto il tuo storico su un esercizio (carico, massimale stimato o volume) compare **Nuovo record 🏆**.
-- Il tasto 📈 accanto a ogni esercizio apre il **grafico di progressione** (massimale stimato o volume, ultimi 3 mesi o tutto).
-
-<p>
-<img src="docs/9-fine.png" width="200" alt="Fine allenamento">
-<img src="docs/10-record.png" width="200" alt="Nuovo record">
-<img src="docs/8-grafico.png" width="200" alt="Grafico">
-</p>
-
-### Storico
-Nel Profilo lo storico si legge in tre modi: **per sessione** (tocchi una sessione per aprirla), **per esercizio** (es. la panca piana attraverso tutte le sessioni, con grafico e carichi di ogni volta) e **cronologia** degli allenamenti.
-
-<p>
-<img src="docs/16-storico-esercizi.png" width="200" alt="Storico per esercizio">
-<img src="docs/17-esercizio-storico.png" width="200" alt="Storico di un esercizio">
-</p>
-
-### Avatar
-- Parte **piccolo e debole**.
-- **Cresce a ogni allenamento** completato.
-- A fine settimana (lunedì 00:00) conta `2 × fatti − previsti`. Con 4 allenamenti previsti:
-  3 fatti = **+2**; 4 fatti = **+4 e un boost d'aura**; 0 fatti = −4.
-- Più **boost d'aura** accumuli, più l'aura è grande e luminosa.
-- Se salti troppi allenamenti l'avatar **ingrassa**. Da metà settimana, se sei indietro, compare un avviso.
-- Il fisico di partenza dipende da altezza, peso e obiettivo.
-- Quattro forme: umano, orso, lupo, gorilla.
-- L'avatar cambia in base all'**obiettivo**: *ipertrofia* = più massa; *forza* = compatto e spesso; *dimagrimento* = parte più morbido e si asciuga; *mantenimento* = poche variazioni; *ricomposizione* = perde grasso e mette muscolo.
-- Con le aure si sbloccano gli **accessori**: fascia (1 boost), cintura (3), mantello (5), corona (7).
+Il JSON si carica come file o si incolla (anche la risposta di un'IA, con testo attorno). **Non hai il JSON?** L'app ti dà un **prompt** da copiare in un assistente IA (Claude, ChatGPT…): gli allegi il PDF della tua scheda e lui risponde con il JSON giusto.
 
 ### Schede con l'IA
-Spunti i macchinari della tua palestra (divisi per gruppo muscolare), copi il testo preparato dall'app
-in un assistente IA (per esempio Claude), incolli la risposta e le schede vengono importate.
+Dalla sessione in corso, **Genera con IA**: spunti i macchinari della palestra, indichi i minuti per allenamento e le richieste; l'app prepara il prompt (con profilo, obiettivo, schede passate, carichi e record) da incollare in un assistente, poi importi la risposta. In alternativa puoi inviare la richiesta per email al tuo preparatore.
 
-## I tuoi dati
+> L'IA **non è un personal trainer**: l'app lo segnala in ogni schermata di generazione. Meglio una scheda fatta da un professionista; l'IA è solo uno spunto.
 
-- Restano **sul tuo telefono**, non vengono inviati a nessuno.
-- **Backup automatico sul telefono**: l'app tiene una copia al giorno (ultimi 7 giorni) e, se i dati principali sparissero, li recupera da sola. Chiede inoltre al browser di non cancellarli.
-- **Backup fuori dal telefono**: **Profilo → Salva backup** apre il menu di condivisione (Drive, iCloud, email, WhatsApp…). Dopo 10 allenamenti non salvati (o 30 giorni) l'app te lo ricorda. Un salvataggio verso un servizio esterno senza che tu tocchi nulla non è possibile da un'app web senza account e server.
-- Con **Ripristina** recuperi i dati da una copia automatica o da un file.
-- Le GIF vengono da internet; una volta viste restano disponibili offline.
-- Aprendo l'app da un altro telefono o browser parte vuota: usa il backup per trasferire i dati.
+## Allenamento
+
+Premi **Inizia** su una scheda: vedi la **lista degli esercizi** (nome, serie, ripetizioni, recupero, GIF). Toccane uno per aprirlo: GIF grande, note, serie con kg e ripetizioni (quelli dell'ultima volta sono già compilati), timer di recupero con «Salta».
+
+- Una serie segnata come fatta **non si annulla**. Puoi aggiungere serie e togliere solo quelle aggiunte da te; le ripetizioni sono libere.
+- Finite le serie si attiva **Fatto**: torni alla lista e l'esercizio risulta completato (pallino pieno, riga più chiara).
+- **Fine scheda** (due tocchi) salva subito l'allenamento, senza domande.
+- Se esci a metà, al ritorno ritrovi tutto. Lo schermo resta acceso; a fine recupero ricevi suono, vibrazione e notifica.
+- Se batti il tuo storico su un esercizio compare **Nuovo record 🏆**; il tasto 📈 apre il grafico di progressione.
+
+## Dieta
+
+La dieta si carica da un **JSON** (file o incollato, anche con testo attorno). Dal pulsante **Nuova dieta** hai quattro strade:
+
+- **Carica o incolla il JSON** che hai già.
+- **Non hai il JSON?** L'app dà un **prompt**: lo incolli in un assistente IA, gli allegi il PDF del tuo nutrizionista (ed eventuale testo) e lui risponde con il JSON.
+- **Crea una dieta con l'IA**: l'app chiede quali **cibi o spezie non ti piacciono** (e le allergie), prepara il prompt, tu lo incolli nell'assistente e riporti qui la risposta. L'app avvisa che l'IA **non è un nutrizionista**: va usata solo come spunto.
+- **Copia una dieta esistente**.
+
+Poi tre passi:
+
+1. **Quali pasti fai?** (colazione, pranzo, cena, spuntini…).
+2. **Cosa mangi davvero?** Per ogni pasto togli gli alimenti che non mangeresti e correggi le **quantità**; puoi aggiungerne altri.
+3. **Come cucini?** Titolo, **sessione da collegare (obbligatoria)** e:
+   - *Cucino 2 volte al giorno*: piano normale;
+   - *Cucino 1 volta al giorno*: l'app chiede **«la sera cucini anche il pranzo del giorno dopo?»**. Se sì, il piano è «intelligente»: a cena e a pranzo mette lo stesso cereale e le stesse verdure e ti dice la quantità totale da cucinare (es. «cucina 180 g in totale»).
+
+Il piano rispetta le frequenze del JSON (es. pesce almeno 3 volte, carne al massimo 5, legumi, uova…) e varia le alternative. La **lista della spesa** somma le quantità della settimana (a crudo) e ha la spunta «preso». Una dieta può servire più sessioni; una sessione può non avere dieta. Il **collegamento** si cambia dalla Home.
+
+## Avatar
+
+- Parte **fuori obiettivo** e **cresce a ogni allenamento**: ipertrofia (magro → massiccio), forza (debole → bilanciere sopra la testa), dimagrimento (sovrappeso → asciutto, con sagoma sbiadita del punto di partenza), mantenimento (fuori allenamento → medaglia), ricomposizione (morbido → tonico).
+- I **nomi dei livelli** cambiano con l'obiettivo (es. Esile → Colosso per l'ipertrofia, Appesantito → Scolpito per il dimagrimento).
+- A fine settimana (lunedì 00:00) conta `2 × fatti − previsti`: con 4 allenamenti previsti, 3 fatti = +2; 4 fatti = +4 e un **boost d'aura**; 0 fatti = −4. Se salti troppi allenamenti **ingrassa**.
+- Con le aure si sbloccano gli **accessori**: fascia (1), cintura (3), mantello (5), corona (7).
+- Nella Home e nella sessione corrente l'avatar è **animato**: si allena; con una dieta collegata alterna allenamento e pasti sani. Con «riduci movimento» attivo nel telefono resta fermo.
+
+## Tema e dati
+
+- **Tema app** (Profilo): 9 combinazioni di colori e aspetto chiaro/scuro/automatico.
+- I dati restano **sul tuo telefono**, non vengono inviati a nessuno. L'app tiene una **copia automatica al giorno** (ultimi 7 giorni) e chiede al browser di non cancellarli.
+- **Profilo → Salva backup** apre il menu di condivisione (Drive, iCloud, email…); **Ripristina** recupera da una copia automatica o da file. Aprendo l'app da un altro telefono parte vuota: usa il backup.
+- Le GIF vengono da internet; una volta viste restano offline.
+
+## Per chi sviluppa
+
+Sito statico senza build: `index.html` + `css/` + `js/` (organizzato in `core`, `avatar`, `ui`, `features`, `app`). Struttura, modello dei dati e formati JSON sono descritti in [CLAUDE.md](CLAUDE.md). Il codice è formattato con Prettier (`.prettierrc`). Per provarlo in locale basta servire la cartella (`python3 -m http.server`). I file personali (schede, diete, JSON) vanno in `private/`, che è ignorata da git.
 
 ## Crediti
 Le GIF e le miniature degli esercizi sono © Gym visual (https://gymvisual.com/), distribuite nel dataset

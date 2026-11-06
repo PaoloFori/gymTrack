@@ -1,0 +1,393 @@
+/* Avatar, livelli, schede della sessione e profilo. */
+
+.avstage {
+  background: var(--surface2);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 0;
+}
+
+.avstage svg {
+  height: 240px;
+  max-width: 100%;
+}
+
+.avopt {
+  border: 2px solid var(--line);
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+}
+
+.avopt[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.avopt svg {
+  height: 96px;
+  max-width: 100%;
+}
+
+.avopt b {
+  font-family: var(--display);
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.a-body {
+  fill: var(--bc, var(--accent));
+}
+
+.a-bodys {
+  stroke: var(--bc, var(--accent));
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.a-dk {
+  fill: var(--bd, #1d2733);
+}
+
+.a-hair {
+  fill: var(--hc, #2b2118);
+}
+
+.a-cloth {
+  fill: var(--accent);
+}
+
+.a-shade {
+  fill: #000;
+  opacity: 0.13;
+}
+
+.a-hi {
+  fill: #fff;
+  opacity: 0.2;
+}
+
+.a-shl {
+  stroke: #000;
+  opacity: 0.16;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.a-ghost {
+  opacity: 0.14;
+}
+
+.a-shoe {
+  fill: var(--accent);
+}
+
+.a-metal {
+  fill: #8b95a3;
+  stroke: #5a6472;
+  stroke-width: 1;
+}
+
+.a-tape {
+  fill: #f2c200;
+}
+
+.a-horn {
+  fill: #efe6d2;
+  stroke: #b9ab8c;
+  stroke-width: 1;
+}
+
+.a-mane {
+  fill: var(--md, #a8651e);
+}
+
+.a-dark {
+  fill: #1d2733;
+  opacity: 0.9;
+}
+
+.a-soft {
+  fill: var(--bs, #fff);
+  opacity: 0.5;
+}
+
+.a-line {
+  stroke: #000;
+  opacity: 0.22;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.a-eye {
+  fill: #1b1f27;
+}
+
+.a-mouth {
+  stroke: #2b2420;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.a-brow {
+  stroke: #2b2420;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.a-sweat {
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.a-ground {
+  fill: var(--line);
+}
+
+.lvl {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.avgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.avc {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.avc svg {
+  width: 100%;
+  height: 130px;
+  background: var(--surface2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.avc b {
+  font-family: var(--display);
+  font-size: 18px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.pfoto {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--line);
+  overflow: hidden;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.pfoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pfoto svg {
+  width: 44px;
+  height: 44px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.auradots {
+  display: flex;
+  gap: 4px;
+}
+
+.auradots i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--surface2);
+}
+
+.auradots i.on {
+  background: var(--aura);
+  box-shadow: 0 0 6px var(--aura);
+}
+
+.a-stop {
+  stop-color: var(--aura);
+}
+
+.a-ring {
+  fill: none;
+  stroke: var(--aura);
+  stroke-width: 1.5;
+}
+
+.a-spark {
+  fill: var(--aura);
+}
+
+.a-cape {
+  fill: #b8322a;
+}
+
+.a-band {
+  fill: var(--aura);
+}
+
+.a-belt {
+  fill: var(--aura);
+}
+
+.a-crown {
+  fill: var(--aura);
+  stroke: #8a6200;
+  stroke-width: 1;
+}
+
+.avc {
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+@keyframes auraPulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .a-glow {
+    animation: auraPulse 3s ease-in-out infinite;
+  }
+}
+
+.avc.sel {
+  position: relative;
+}
+
+.avc.sel .cb {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.avc.sel[aria-pressed="true"] {
+  border-color: var(--danger);
+}
+
+.avc.sel[aria-pressed="true"] .cb {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.curcard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.curcard .xn,
+.xrow .xn {
+  display: block;
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.curcard .meta {
+  display: block;
+  margin-top: 3px;
+}
+
+.curcard .mini {
+  width: 74px;
+  height: 86px;
+  flex: none;
+  background: var(--surface2);
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.curcard .mini svg {
+  width: 100%;
+  height: 100%;
+}
+
+.curcard .ico {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.curcard .ico svg {
+  width: 26px;
+  height: 26px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

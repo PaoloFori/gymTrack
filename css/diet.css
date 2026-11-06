@@ -1,0 +1,260 @@
+/* Dieta: piano, spesa, finestra di creazione. */
+
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 8px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.dday {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+}
+
+.dday h3 {
+  flex: 1;
+}
+
+.dday .chev {
+  color: var(--muted);
+  font-size: 18px;
+  transition: transform 0.15s;
+}
+
+.dday[aria-expanded="true"] .chev {
+  transform: rotate(90deg);
+}
+
+.meal {
+  border-top: 1px solid var(--line);
+  padding: 8px 0;
+}
+
+.meal:first-of-type {
+  margin-top: 10px;
+}
+
+.meal .mt {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.meal div.it {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 0;
+  font-size: 14px;
+}
+
+.meal .it span:last-child {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.shop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  background: transparent;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  text-align: left;
+}
+
+.shop .bx {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 2px solid var(--line);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.shop.on .bx {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+
+.shop.on .sn2 {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.shop .sn2 {
+  font-weight: 600;
+}
+
+.shop .qt {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.fd input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.fd .nm {
+  flex: 1;
+  min-width: 0;
+}
+
+.fd .nm b {
+  font-weight: 600;
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.step button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.step span {
+  min-width: 34px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sugg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sugg button {
+  border: 1px dashed var(--line);
+  background: var(--bg);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.sugg button[aria-pressed="true"] {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.dtx {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 110px;
+  font-size: 13px;
+}
+
+.today-b {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.itm {
+  border-top: 1px solid var(--line);
+  padding: 6px 0;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.opt input[type="checkbox"],
+.fd input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.opt .nm {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.opt .q {
+  width: 64px;
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 4px;
+  min-height: 36px;
+}
+
+.opt .u {
+  width: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
