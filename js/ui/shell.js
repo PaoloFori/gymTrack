@@ -24,23 +24,18 @@ var TABS = [
     t: "Dieta",
     i: '<path d="M12 7c-2-2-7-1-7 5 0 4 3 8 5 8 1 0 1.5-.5 2-.5s1 .5 2 .5c2 0 5-4 5-8 0-6-5-7-7-5z"/><path d="M12 7c0-2 1-3 3-4"/>'
   },
-  {
-    v: "cal",
-    t: "Calendario",
-    i: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'
-  },
-  {
-    v: "profilo",
-    t: "Profilo",
-    i: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'
-  }
+  { v: "analisi", t: "Analisi", i: '<path d="M5 20V10M12 20V4M19 20v-7"/>' }
 ];
 /* A quale scheda della barra appartiene la vista corrente. */
 function tabOf() {
-  var n = view.name;
-  if (n === "sess") return view.from === "profilo" || view.from === "home" ? view.from : "sessioni";
-  if (n === "dietad") return view.from === "home" ? "home" : "dieta";
-  if (n === "corrente" || n === "scheda" || n === "workout" || n === "wex") return view.from === "home" && n === "corrente" ? "home" : "sessioni";
+  var n = view.name,
+    fromTab = TABS.some(function (t) {
+      return t.v === view.from;
+    });
+  if (n === "sess" || n === "dietad") return fromTab ? view.from : n === "sess" ? "sessioni" : "dieta";
+  if (n === "profilo") return "home";
+  if (n === "corrente") return view.from === "home" ? "home" : "sessioni";
+  if (n === "scheda" || n === "workout" || n === "wex") return "sessioni";
   return TABS.some(function (t) {
     return t.v === n;
   })
@@ -104,7 +99,6 @@ function go(v) {
   selMode = false;
   selIds = [];
   armed = "";
-  if (v === "profilo") refreshAuto();
   render();
   window.scrollTo(0, 0);
   if (dir) {
@@ -186,28 +180,7 @@ function okFoot(label) {
 function render() {
   try {
     var app = document.getElementById("app");
-    app.innerHTML =
-      view.name === "home"
-        ? vHome()
-        : view.name === "sessioni"
-          ? vSessioni()
-          : view.name === "corrente"
-            ? vCorrente()
-            : view.name === "dietad"
-              ? vDietaD()
-              : view.name === "scheda"
-                ? vScheda()
-                : view.name === "workout"
-                  ? vWorkout()
-                  : view.name === "wex"
-                    ? vEx()
-                    : view.name === "cal"
-                      ? vCal()
-                      : view.name === "sess"
-                        ? vSess()
-                        : view.name === "dieta"
-                          ? vDieta()
-                          : vProfilo();
+    app.innerHTML = (VIEWS[view.name] || vHome)();
     document.querySelector("#bar .in").innerHTML = barHTML();
     var oldSh = document.querySelector(".sheet"),
       keep = oldSh ? oldSh.scrollTop : 0;

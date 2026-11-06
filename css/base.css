@@ -550,3 +550,35 @@ button {
       color 0.12s;
   }
 }
+
+/* Scheda suprema (Home) */
+.suprema {
+  padding: 0;
+  overflow: hidden;
+}
+.supbtn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 14px;
+  color: inherit;
+}
+.supmore {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+.suplinks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}

@@ -1,4 +1,4 @@
-/* Home: riepilogo con profilo, avatar corrente, sessione e dieta correnti e collegamento tra i due. */
+/* Home: profilo (si apre con un tocco), «scheda suprema» (avatar animato + collegamento sessione↔dieta) e calendario in fondo. */
 function sessLevel(x) {
   if (x.chiusa) {
     var F = x.finale || {};
@@ -42,93 +42,58 @@ function sessCard(a) {
     "</button>"
   );
 }
-function vHome() {
+function profileCard() {
   var p = S.profile,
-    a = attiva(),
-    d = a ? dietOf(a) : null,
-    h = hdr("Home", p.nome ? "Ciao " + p.nome : "Il tuo riepilogo", false) + '<div class="stack">' + backupBanner();
-  var meta = [p.eta ? esc(p.eta) + " anni" : "", p.altezza ? esc(p.altezza) + " cm" : "", p.peso ? esc(p.peso) + " kg" : ""]
-    .filter(Boolean)
-    .join(" · ");
-  h +=
-    '<div class="card"><div class="row" style="gap:14px"><div class="pfoto" style="width:64px;height:64px">' +
-    (p.foto
-      ? '<img src="' + esc(p.foto) + '" alt="Foto profilo">'
-      : '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>') +
-    '</div><div class="grow"><b style="font-size:18px">' +
-    esc(p.nome || "Il tuo profilo") +
-    '</b><div class="meta">' +
-    (meta || "Completa i tuoi dati nel Profilo") +
-    '</div></div><button class="btn small" data-act="tab" data-v="profilo">Profilo</button></div></div>';
-  if (a) {
-    var g = progress(a),
-      lv = livello(g, a.obiettivo);
-    h +=
-      '<div class="card"><div class="avstage">' +
-      avatarSVG(a.tipo, { p: g.p, fat: g.fat, aura: g.aura, anim: d ? "diet" : "train" }, a) +
-      '</div><div class="row" style="margin-top:12px"><div class="lvl grow">' +
-      esc(lv) +
-      '</div><div class="meta" style="font-weight:600">Forma ' +
-      Math.round(g.P) +
-      ' / 100</div></div><div class="prog"><i style="width:' +
-      g.P.toFixed(1) +
-      '%"></i></div><p class="meta">' +
-      (d
-        ? "Si allena e mangia sano: segue la dieta «" + esc(d.nome) + "»."
-        : "Si allena. Collega una dieta alla sessione per vederlo anche mangiare sano.") +
-      "</p></div>";
-    h += '<div class="meta" style="margin:6px 0 0;font-weight:600">Sessione corrente</div>' + sessCard(a);
-  } else {
-    h +=
-      '<div class="card"><h3>Nessuna sessione in corso</h3><p class="meta" style="margin:6px 0 12px">Inizia una sessione per avere il tuo avatar che si allena.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>';
-  }
-  h += '<div class="meta" style="margin:6px 0 0;font-weight:600">Dieta corrente</div>';
-  if (d)
-    h +=
-      '<button class="curcard" data-act="open-diet" data-id="' +
-      d.id +
-      '"><span class="ico"><svg viewBox="0 0 24 24">' +
-      TABS[2].i +
-      '</svg></span><span class="grow"><b class="xn">' +
-      esc(d.nome) +
-      '</b><span class="meta">Oggi: ' +
-      esc(
-        (d.plan[todayI()] || [])
-          .map(function (m) {
-            return m.t;
-          })
-          .join(", ") || "—"
-      ) +
-      "</span></span>" +
-      chevron() +
-      "</button>";
-  else h += '<div class="card"><p class="meta" style="margin:0">Nessuna dieta collegata alla sessione corrente.</p></div>';
-  if (a) {
-    h +=
-      '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Collega una dieta alla sessione corrente</div><div class="eqs"><button class="eq" data-act="link-diet" data-id="" aria-pressed="' +
-      !a.dietId +
-      '"><span>' +
-      (a.dietId ? "+" : "✓") +
-      "</span> Nessuna dieta</button>" +
-      S.diete
-        .map(function (x) {
-          var on = a.dietId === x.id;
-          return (
-            '<button class="eq" data-act="link-diet" data-id="' +
-            x.id +
-            '" aria-pressed="' +
-            on +
-            '"><span>' +
-            (on ? "✓" : "+") +
-            "</span> " +
-            esc(x.nome) +
-            "</button>"
-          );
-        })
-        .join("") +
-      '</div><p class="hint">Una dieta può servire più sessioni; una sessione può anche non avere dieta. Con una dieta collegata l\'avatar si allena e mangia sano.</p>' +
-      (S.diete.length ? "" : '<button class="btn small" data-act="d-new">Crea una dieta</button>') +
-      "</div>";
+    meta = [p.eta ? esc(p.eta) + " anni" : "", p.altezza ? esc(p.altezza) + " cm" : "", p.peso ? esc(p.peso) + " kg" : ""]
+      .filter(Boolean)
+      .join(" · ");
+  var foto = p.foto
+    ? `<img src="${esc(p.foto)}" alt="Foto profilo">`
+    : '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
+  return `<button class="curcard" data-act="open-profilo"><span class="pfoto" style="width:56px;height:56px">${foto}</span><span class="grow"><b class="xn">${esc(p.nome || "Il tuo profilo")}</b><span class="meta">${meta || "Tocca per inserire nome, età, altezza e peso"}</span></span>${chevron()}</button>`;
+}
+function dietLinkCard(d) {
+  var oggi = (d.plan[todayI()] || []).map((m) => m.t).join(", ") || "—";
+  return `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">Dieta corrente</span><b class="xn">${esc(d.nome)}</b><span class="meta">Oggi: ${esc(oggi)}</span></span>${chevron()}</button>`;
+}
+/* La «scheda suprema»: avatar che si muove + sessione e dieta correnti. Toccandola si aprono i rimandi alle due schede. */
+function supremaCard(a) {
+  if (!a)
+    return `<div class="card"><span class="badge">Scheda suprema</span><h3 style="margin-top:8px">Nessuna sessione in corso</h3><p class="meta" style="margin:6px 0 12px">Qui trovi il tuo avatar e il collegamento tra sessione e dieta. Inizia una sessione per vederlo allenarsi.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>`;
+  var g = progress(a),
+    d = dietOf(a),
+    lv = livello(g, a.obiettivo);
+  var caption = d ? `Si allena e mangia sano: segue la dieta «${esc(d.nome)}».` : "Si allena. Collega una dieta per vederlo anche mangiare sano.";
+  var h = `<div class="card suprema"><button class="supbtn" data-act="sup-toggle" aria-expanded="${supOpen}">
+    <div class="row" style="margin-bottom:8px"><span class="badge">Scheda suprema</span><span class="meta grow" style="text-align:right">${esc(a.nome)}${d ? " + " + esc(d.nome) : ""}</span></div>
+    <div class="avstage">${avatarSVG(a.tipo, { p: g.p, fat: g.fat, aura: g.aura, anim: d ? "diet" : "train" }, a)}</div>
+    <div class="row" style="margin-top:12px"><div class="lvl grow">${esc(lv)}</div><div class="meta" style="font-weight:600">Forma ${Math.round(g.P)} / 100</div></div>
+    <div class="prog"><i style="width:${g.P.toFixed(1)}%"></i></div>
+    <p class="meta" style="margin:0">${caption}</p>
+    <div class="supmore">${supOpen ? "Chiudi" : "Tocca per aprire sessione e dieta"}<span class="chev2" style="transform:rotate(${supOpen ? -90 : 90}deg)">›</span></div>
+  </button>`;
+  if (supOpen) {
+    h += `<div class="suplinks">${sessCard(a)}${d ? dietLinkCard(d) : '<div class="card" style="margin:0"><p class="meta" style="margin:0">Nessuna dieta collegata alla sessione.</p></div>'}
+      <div class="meta" style="margin:4px 0 0;font-weight:600">Dieta collegata alla sessione</div>
+      <div class="eqs"><button class="eq" data-act="link-diet" data-id="" aria-pressed="${!a.dietId}"><span>${a.dietId ? "+" : "✓"}</span> Nessuna dieta</button>${S.diete
+        .map(
+          (x) =>
+            `<button class="eq" data-act="link-diet" data-id="${x.id}" aria-pressed="${a.dietId === x.id}"><span>${a.dietId === x.id ? "✓" : "+"}</span> ${esc(x.nome)}</button>`
+        )
+        .join("")}</div>
+      <p class="hint" style="margin:0">Una dieta può servire più sessioni; una sessione può anche non averne.${S.diete.length ? "" : " Non hai ancora diete: creane una dalla scheda Dieta."}</p></div>`;
   }
   return h + "</div>";
 }
+function vHome() {
+  var p = S.profile;
+  return (
+    hdr("Home", p.nome ? "Ciao " + p.nome : "Il tuo riepilogo", false) +
+    `<div class="stack">${backupBanner()}${profileCard()}${supremaCard(attiva())}${calCard()}</div>`
+  );
+}
+ACT["sup-toggle"] = function () {
+  supOpen = !supOpen;
+  render();
+};
+VIEWS.home = vHome;

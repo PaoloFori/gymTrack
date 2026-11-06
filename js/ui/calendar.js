@@ -1,5 +1,5 @@
-/* Calendario degli allenamenti. */
-function vCal() {
+/* Calendario degli allenamenti: riquadro in fondo alla Home (mese + dettaglio del giorno scelto). */
+function calCard() {
   var now = new Date(),
     base = new Date(now.getFullYear(), now.getMonth() + calM, 1),
     y = base.getFullYear(),
@@ -15,8 +15,7 @@ function vCal() {
     (by[k] = by[k] || []).push(l);
   });
   var h =
-    hdr("Calendario", "I giorni in cui ti sei allenato", false) +
-    '<div class="stack"><div class="card"><div class="row" style="margin-bottom:10px"><button class="ib" data-act="cal-prev" aria-label="Mese precedente">‹</button><div class="grow" style="text-align:center;font-family:var(--display);font-size:22px;text-transform:uppercase">' +
+    '<div class="meta" style="margin:6px 0 0;font-weight:600">Calendario</div><div class="card"><div class="row" style="margin-bottom:10px"><button class="ib" data-act="cal-prev" aria-label="Mese precedente">‹</button><div class="grow" style="text-align:center;font-family:var(--display);font-size:22px;text-transform:uppercase">' +
     esc(base.toLocaleDateString("it-IT", { month: "long", year: "numeric" })) +
     '</div><button class="ib" data-act="cal-next" aria-label="Mese successivo"' +
     (calM >= 0 ? " disabled" : "") +
@@ -83,7 +82,7 @@ function vCal() {
       });
     h += "</div>";
   }
-  return h + "</div>";
+  return h;
 }
 
 ACT["cal-prev"] = function (d) {

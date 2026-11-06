@@ -115,8 +115,8 @@ function recordsHTML() {
     .sort(function (a, b) {
       return b.ts - a.ts;
     })
-    .slice(0, 10);
-  var h = '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Record personali 🏆</div>';
+    .slice(0, 12);
+  var h = '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Record personali · tutte le sessioni insieme 🏆</div>';
   if (!arr.length) return h + '<p class="meta">I tuoi migliori carichi compaiono qui dopo il primo allenamento.</p></div>';
   arr.forEach(function (r) {
     h +=

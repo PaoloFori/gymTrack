@@ -414,3 +414,7 @@ ACT["del-log"] = function (d) {
       .catch(function () {});
   render();
 };
+
+VIEWS.corrente = vCorrente;
+VIEWS.sess = vSess;
+VIEWS.scheda = vScheda;

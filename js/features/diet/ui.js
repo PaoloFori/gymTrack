@@ -365,3 +365,6 @@ HOOKS.change.push(function (t) {
     return true;
   }
 });
+
+VIEWS.dieta = vDieta;
+VIEWS.dietad = vDietaD;

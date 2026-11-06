@@ -30,13 +30,13 @@ dopo la prima apertura, **funziona anche senza internet**.
 
 ## Le schermate
 
-La barra in basso ha cinque schede; puoi anche **scorrere a destra e a sinistra** per spostarti tra loro.
+La barra in basso ha quattro schede; puoi anche **scorrere a destra e a sinistra** per spostarti tra loro.
 
-- **Home**: il tuo riepilogo. Profilo (foto, età, altezza, peso), l'**avatar corrente** (animato: si allena e, se c'è una dieta collegata, mangia sano), la sessione e la dieta correnti, e il **collegamento tra sessione e dieta**.
+- **Home**: in alto il tuo **profilo** (tocca per aprirlo e modificare nome, foto, età, altezza, peso, tema, notifiche e backup); poi la **scheda suprema**; in fondo il **calendario** degli allenamenti.
+  - La **scheda suprema** è il riquadro con il tuo **avatar animato** (si allena e, se c'è una dieta collegata, mangia sano). Toccandolo si apre e dà i rimandi alla **sessione corrente** e alla **dieta corrente**, con il collegamento tra le due.
 - **Sessioni**: la sessione corrente (tocca per vedere le schede) e lo **storico** delle sessioni passate. Da qui crei una sessione, carichi un JSON, selezioni ed elimini sessioni.
 - **Dieta**: la dieta corrente e le diete passate (ognuna con il suo titolo). Tocca una dieta per vedere **piano settimanale** (si apre il giorno di oggi) e **lista della spesa**.
-- **Calendario**: i giorni in cui ti sei allenato, con carichi, durata e note.
-- **Profilo**: dati personali, record, grafico del peso, i tuoi avatar, storico per sessione/esercizio/cronologia, notifiche, **Tema app** e backup.
+- **Analisi**: statistiche per **scheda suprema** (sessione + dieta) o per sessione, oppure per tutto insieme: allenamenti, tonnellate, aderenza, volume per settimana. Ci sono anche i **record personali di tutte le sessioni insieme**, il grafico del **peso** e lo **storico** (per sessione, per esercizio, cronologia).
 
 ## Sessioni
 
@@ -46,7 +46,7 @@ Quando ne crei una, l'app ti chiede peso, **obiettivo** (ipertrofia, forza, dima
 - collegare subito una dieta (facoltativo);
 - **caricare le schede da JSON** (vedi sotto).
 
-Le schede si possono inserire a mano, caricare da JSON o generare con l'IA (vedi sotto). Le sessioni passate si eliminano dallo storico (o dal Profilo) con **Seleziona**; vengono eliminati anche i loro allenamenti.
+Le schede si possono inserire a mano, caricare da JSON o generare con l'IA (vedi sotto). Le sessioni passate si eliminano dallo storico con **Seleziona**; vengono eliminati anche i loro allenamenti.
 
 ### Carica da JSON
 Dallo storico, **Carica JSON** legge un file con le schede (formato in [CLAUDE.md](CLAUDE.md)) e chiede **«È la scheda corrente?»**:
@@ -99,9 +99,9 @@ Il piano rispetta le frequenze del JSON (es. pesce almeno 3 volte, carne al mass
 
 ## Tema e dati
 
-- **Tema app** (Profilo): 9 combinazioni di colori e aspetto chiaro/scuro/automatico.
+- **Tema app** (Home → profilo): 9 combinazioni di colori e aspetto chiaro/scuro/automatico.
 - I dati restano **sul tuo telefono**, non vengono inviati a nessuno. L'app tiene una **copia automatica al giorno** (ultimi 7 giorni) e chiede al browser di non cancellarli.
-- **Profilo → Salva backup** apre il menu di condivisione (Drive, iCloud, email…); **Ripristina** recupera da una copia automatica o da file. Aprendo l'app da un altro telefono parte vuota: usa il backup.
+- **Home → profilo → Salva backup** apre il menu di condivisione (Drive, iCloud, email…); **Ripristina** recupera da una copia automatica o da file. Aprendo l'app da un altro telefono parte vuota: usa il backup.
 - Le GIF vengono da internet; una volta viste restano offline.
 
 ## Per chi sviluppa

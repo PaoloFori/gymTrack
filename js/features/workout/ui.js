@@ -125,3 +125,6 @@ function vEx() {
     '>− Togli serie aggiunta</button></div><p class="hint">Cambia kg e ripetizioni quando vuoi, finché la serie non è fatta. Una serie segnata come fatta non si può annullare; si possono togliere solo quelle aggiunte da te.</p></div>';
   return h + "</div>";
 }
+
+VIEWS.workout = vWorkout;
+VIEWS.wex = vEx;

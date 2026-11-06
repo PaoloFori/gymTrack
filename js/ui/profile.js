@@ -1,18 +1,13 @@
-/* Profilo, storico e impostazioni. */
+/* Profilo: dati personali (si apre dalla Home), notifiche, accessori, backup. */
 function vProfilo() {
-  var p = S.profile,
-    nSess = S.sessioni.filter(function (x) {
-      return x.chiusa;
-    }).length;
+  var p = S.profile;
   var h =
     hdr(
       p.nome || "Profilo",
-      p.nome ? "Profilo" : "Inserisci i tuoi dati",
-      false,
+      p.nome ? "Dati personali e impostazioni" : "Inserisci i tuoi dati",
+      true,
       '<button class="btn small" data-act="open-tema">Tema app</button>'
-    ) +
-    '<div class="stack">' +
-    backupBanner();
+    ) + '<div class="stack">';
   h +=
     '<div class="card"><div class="row" style="gap:14px"><div class="pfoto">' +
     (p.foto
@@ -33,27 +28,8 @@ function vProfilo() {
     '"></div><div class="field"><label for="p-peso">Peso kg</label><input id="p-peso" data-p="peso" inputmode="decimal" value="' +
     esc(p.peso) +
     '"></div></div>';
-  h += '<p class="hint" style="margin:0">Altezza e peso servono per costruire l\'avatar di ogni sessione.</p></div>';
   h +=
-    '<div class="grid3"><div class="card stat"><b>' +
-    nSess +
-    '</b><span>sessioni concluse</span></div><div class="card stat"><b>' +
-    LOG.length +
-    '</b><span>allenamenti totali</span></div><div class="card stat"><b>' +
-    volMonth() +
-    "</b><span>t sollevate in 30 gg</span></div></div>";
-  h += recordsHTML() + pesoHTML() + avatarGrid();
-  var seg = function (m, t) {
-    return '<button class="btn small' + (hm === m ? " primary" : "") + '" data-act="hist-m" data-m="' + m + '">' + t + "</button>";
-  };
-  h +=
-    '<div class="card"><div class="meta" style="margin:0 0 8px;font-weight:600">Storico</div><div class="row" style="gap:6px;margin-bottom:8px">' +
-    seg("sess", "Per sessione") +
-    seg("ex", "Per esercizio") +
-    seg("cron", "Cronologia") +
-    "</div>" +
-    histBody() +
-    "</div>";
+    '<p class="hint" style="margin:0">Altezza e peso servono per costruire l\'avatar di ogni sessione. Il grafico del peso è in Analisi.</p></div>';
   var ns = notifState(),
     nt =
       ns === "no"
@@ -102,85 +78,6 @@ function vProfilo() {
     (armed === "bk" ? "Tocca ancora: sovrascrive tutto" : "Ripristina") +
     "</button></div>";
   return h + "</div>";
-}
-function histBody() {
-  var h = "";
-  if (hm === "sess") {
-    if (!S.sessioni.length) return '<p class="meta">Nessuna sessione ancora.</p>';
-    S.sessioni
-      .slice()
-      .reverse()
-      .forEach(function (x) {
-        var n = 0,
-          vol = 0;
-        LOG.forEach(function (l) {
-          if (l.sid === x.id) {
-            n++;
-            (l.ex || []).forEach(function (e) {
-              vol += exVol(e.sets);
-            });
-          }
-        });
-        h +=
-          '<button class="plain prrow" style="width:100%;text-align:left" data-act="open-sess" data-id="' +
-          x.id +
-          '"><b>' +
-          esc(x.nome) +
-          (x.chiusa ? "" : " (in corso)") +
-          "</b><span>" +
-          n +
-          (n === 1 ? " allenamento" : " allenamenti") +
-          " · " +
-          (vol / 1000).toFixed(1).replace(".", ",") +
-          " t ›</span></button>";
-      });
-  } else if (hm === "ex") {
-    var m = {};
-    LOG.forEach(function (l) {
-      (l.ex || []).forEach(function (e) {
-        var k = exKey(e);
-        if (!k) return;
-        var o = m[k] || (m[k] = { nome: e.nome, id: e.id, n: 0, sid: {}, ts: 0 });
-        o.n++;
-        o.sid[l.sid] = 1;
-        if (l.ts > o.ts) {
-          o.ts = l.ts;
-          o.id = e.id;
-        }
-      });
-    });
-    var arr = Object.keys(m)
-      .map(function (k) {
-        return m[k];
-      })
-      .sort(function (a, b) {
-        return b.ts - a.ts;
-      });
-    if (!arr.length) return '<p class="meta">Qui compaiono gli esercizi che hai fatto, con tutta la loro storia.</p>';
-    arr.forEach(function (o) {
-      var ns = Object.keys(o.sid).length;
-      h +=
-        '<button class="plain prrow" style="width:100%;text-align:left" data-act="graf" data-eid="' +
-        esc(o.id || "") +
-        '" data-n="' +
-        esc(o.nome) +
-        '"><b>' +
-        esc(o.nome) +
-        "</b><span>" +
-        o.n +
-        (o.n === 1 ? " volta" : " volte") +
-        " · " +
-        ns +
-        (ns === 1 ? " sessione" : " sessioni") +
-        " ↗</span></button>";
-    });
-  } else {
-    if (!LOG.length) return '<p class="meta">Qui compaiono gli allenamenti che termini.</p>';
-    LOG.slice(0, 30).forEach(function (l) {
-      h += logHTML(l);
-    });
-  }
-  return h;
 }
 
 ACT["add-peso"] = function (d) {
@@ -269,3 +166,12 @@ HOOKS.change.push(function (t) {
     return true;
   }
 });
+
+ACT["open-profilo"] = function () {
+  view = { name: "profilo" };
+  edit = false;
+  refreshAuto();
+  render();
+  window.scrollTo(0, 0);
+};
+VIEWS.profilo = vProfilo;

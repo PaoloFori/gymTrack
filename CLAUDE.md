@@ -17,7 +17,8 @@ allenamenti, diete e di un **avatar** che cresce con l'impegno. Tutto è in ital
 - **IA** (nessun assistente è collegato): l'app prepara **prompt** da incollare in un assistente esterno e riceve in risposta un
   JSON — per convertire un PDF in JSON, per generare schede, per proporre una dieta. Ogni generazione mostra l'avviso
   «l'IA non è un nutrizionista né un personal trainer». Se `window.claude` è disponibile (ambiente Claude) la generazione parte direttamente.
-- **Home** (riepilogo), **Calendario**, **Profilo** (dati, record, peso, storico, notifiche, tema, backup), **tema** a 9 palette.
+- **Home**: profilo (si apre dalla Home), **scheda suprema** (avatar animato + rimandi a sessione e dieta correnti + collegamento) e **calendario** in fondo.
+- **Analisi**: statistiche per scheda suprema (sessione + dieta) / sessione / tutto, record di tutte le sessioni, peso, storico. **Tema** a 9 palette.
 
 ## Struttura del repository
 
@@ -33,7 +34,7 @@ js/
   core/               fondamenta, senza interfaccia
     constants.js        chiavi di salvataggio, gruppi muscolari, obiettivi (OBJ, OBJP), attrezzi (EQ), avatar (AV, AVK)
     gifdata.js          dataset GIF (nomi/file) e dizionario italiano→inglese per la ricerca
-    registry.js         ACT, SHEETS, HOOKS: registri in cui i moduli si «iscrivono» (vedi sotto)
+    registry.js         ACT, SHEETS, HOOKS: registri (VIEWS, ACT, SHEETS, HOOKS) in cui i moduli si «iscrivono» (vedi sotto)
     utils.js            uid, esc, clamp, date, toast, confirmed, parseLoose, copyText…
     state.js            stato globale (S, LOG, view, sheet, session…), normalize, attiva(), getScheda()
     storage.js          salvataggio locale/cloud, copie in IndexedDB, backup manuale, banner di promemoria
@@ -41,12 +42,13 @@ js/
   avatar/             levels.js (nomi dei livelli) · draw.js (SVG: corpo, accessori, aura) · anim.js (animazione SMIL)
   ui/                 schermate e finestre generiche
     shell.js            hdr, TABS, go() con swipe, barra in basso, sheetShell, sheetHTML, render()
-    home.js             Home (riepilogo + collegamento sessione↔dieta)
+    home.js             Home: profilo, scheda suprema (supremaCard), calendario in fondo
+    analysis.js         Analisi: ambito (tutto/sessione), statistiche, record, peso, storico
     sessions.js         pagina Sessioni (corrente + storico) e griglie con selezione
     session.js          dettaglio sessione corrente/passata, scheda, storico allenamenti
     session-sheets.js   finestre nuova sessione / scheda / esercizio e relative azioni
-    profile.js          Profilo, storico, backup, notifiche
-    calendar.js · charts.js   calendario; grafici, record, peso
+    profile.js          pagina Profilo (aperta dalla Home): dati personali, notifiche, backup
+    calendar.js · charts.js   riquadro calendario (calCard); grafici, record, peso
   features/           funzioni di dominio, ognuna con modello, viste e azioni
     gifs.js · history.js · theme.js
     workout/            runtime.js (timer, notifiche, salvataggio) · ui.js (lista esercizi e dettaglio)
@@ -58,8 +60,9 @@ private/              IGNORATA da git: JSON personali di schede e diete (non pub
 ```
 
 ### Registri (come si aggiunge una funzione)
-Niente grosso `switch`: ogni modulo registra ciò che gestisce in `core/registry.js`.
+Niente grossi `switch`: ogni modulo registra ciò che gestisce in `core/registry.js`.
 
+- `VIEWS["nome"] = function () { return html }` — schermata (`view.name`); `render()` chiama `VIEWS[view.name]`.
 - `ACT["nome"] = function (d, el, nome) {…}` — azione dei bottoni con `data-act="nome"` (`d` = `dataset`). `act()` in `app/actions.js` la chiama
   dentro un try/catch che mostra l'errore. L'azione deve cambiare lo stato e chiamare `render()`.
 - `SHEETS[kind] = { html(k), save(k)?, session? }` — finestra modale; `sheet.kind` sceglie la voce, `session: true` = serve una sessione in corso.
@@ -76,12 +79,12 @@ Niente grosso `switch`: ogni modulo registra ciò che gestisce in `core/registry
 ## Architettura dell'interfaccia
 
 - **Stato globale** (`core/state.js`): `S` (dati persistenti), `LOG` (allenamenti fatti), `view` (schermata), `sheet` (finestra aperta o `null`),
-  `session` (allenamento in corso), `timer`, `armed`, `selMode`/`selIds` (selezione per eliminare).
+  `session` (allenamento in corso), `timer`, `armed`, `selMode`/`selIds` (selezione per eliminare), `supOpen` (scheda suprema aperta), `anScope` (ambito dell'Analisi: `"all"` o id sessione).
 - **`render()`** ricostruisce `#app`, `#bar` e `#sheetwrap` da zero a ogni cambiamento (nessun diffing): dopo aver cambiato lo stato si chiama `render()`.
   Timer di recupero e cronometro si aggiornano a parte (`updateTimer`).
 - **Conferma a due tocchi**: `confirmed(chiave)` imposta `armed` e ritorna `false` al primo tocco (il testo del bottone cambia), `true` al secondo.
-- **Viste** (`view.name`): le cinque schede di `TABS` — `home`, `sessioni`, `dieta`, `cal`, `profilo` — più `corrente` (sessione in corso), `sess` (sessione passata,
-  con `view.from`), `scheda`, `workout`, `wex` (dettaglio esercizio), `dietad` (dettaglio dieta). `tabOf()` dice quale icona evidenziare; `go(v)` cambia scheda con
+- **Viste** (`view.name`): le quattro schede di `TABS` — `home`, `sessioni`, `dieta`, `analisi` — più `profilo` (si apre dalla Home, evidenzia Home), `corrente` (sessione in corso), `sess` (sessione passata,
+  con `view.from` = scheda di provenienza, usata da «indietro» e da `tabOf()`), `scheda`, `workout`, `wex` (dettaglio esercizio), `dietad` (dettaglio dieta). `tabOf()` dice quale icona evidenziare; `go(v)` cambia scheda con
   animazione direzionale e lo swipe orizzontale usa lo stesso `go`.
 - **Finestre** (`sheet.kind`): `sess`, `scheda`, `es`, `ai`, `graf`, `pr`, `tema`, `dieta` (`step`: `src` → `gen` → `genout` | `pasti` → `alim` → `cucina`),
   `impsess` (`step`: `src` → `q` → `cur` | `past`).

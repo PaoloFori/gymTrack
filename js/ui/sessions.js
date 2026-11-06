@@ -87,26 +87,5 @@ function avGridItems(list, sel) {
   });
   return h + "</div>";
 }
-function avatarGrid() {
-  var h =
-    '<div class="card"><div class="row" style="margin-bottom:8px"><div class="meta grow" style="margin:0;font-weight:600">I miei avatar</div>' +
-    (S.sessioni.length ? '<button class="btn small" data-act="sel-mode">' + (selMode ? "Annulla" : "Seleziona") + "</button>" : "") +
-    "</div>";
-  if (!S.sessioni.length)
-    return h + '<p class="meta">Qui compaiono gli avatar di tutte le tue sessioni, quelle concluse e quella in corso.</p></div>';
-  h += avGridItems(S.sessioni.slice().reverse(), selMode);
-  if (selMode)
-    return (
-      h +
-      '<button class="btn danger wide" style="margin-top:12px" data-act="del-sess"' +
-      (selIds.length ? "" : " disabled") +
-      ">" +
-      (armed === "ds"
-        ? "Tocca ancora: elimina " + selIds.length + (selIds.length === 1 ? " sessione" : " sessioni") + " e i suoi allenamenti"
-        : selIds.length
-          ? "Elimina " + selIds.length + (selIds.length === 1 ? " sessione" : " sessioni")
-          : "Scegli le sessioni da eliminare") +
-      '</button><p class="hint">Vengono eliminati anche gli allenamenti registrati in quelle sessioni. Le diete collegate solo a queste sessioni vengono eliminate.</p></div>'
-    );
-  return h + '<p class="hint">Tocca un avatar per vedere la sessione.</p></div>';
-}
+
+VIEWS.sessioni = vSessioni;

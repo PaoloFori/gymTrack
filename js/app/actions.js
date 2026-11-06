@@ -16,12 +16,18 @@ function closeSheet() {
 ACT["tab"] = function (d) {
   go(d.v);
 };
-ACT["back"] = function (d) {
+ACT["back"] = function () {
+  var from = TABS.some(function (t) {
+    return t.v === view.from;
+  })
+    ? view.from
+    : "";
   if (view.name === "wex") view = { name: "workout" };
-  else if (view.name === "sess") view = { name: view.from || "sessioni" };
   else if (view.name === "scheda") view = { name: "corrente" };
-  else if (view.name === "corrente") view = { name: view.from === "home" ? "home" : "sessioni" };
-  else if (view.name === "dietad") view = { name: view.from === "home" ? "home" : "dieta" };
+  else if (view.name === "corrente") view = { name: from || "sessioni" };
+  else if (view.name === "sess") view = { name: from || "sessioni" };
+  else if (view.name === "dietad") view = { name: from || "dieta" };
+  else if (view.name === "profilo") view = { name: "home" };
   else view = { name: "sessioni" };
   edit = false;
   render();
