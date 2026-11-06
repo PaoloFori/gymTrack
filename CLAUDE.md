@@ -79,7 +79,8 @@ salvato in `localStorage["gymtrack.v2.s"]`. Una serie `done` non si annulla; `ad
 ```js
 dieta = {
   id, nome, creata, periodo: { dal, al }|null,
-  regole: { carne:{max}, pesce:{min}, tonno:{max}, uova:{min}, latt:{min}, legu:{min}, patate:{max} },
+  regole: { carne:{max}, rossa:{max}, pesce:{min}, tonno:{max}, uova:{min}, latt:{min}, legu:{min}, patate:{max}, libero:{n} },
+  pref: "carne"|"pesce"|"indiff",  // preferenza: più carne, più pesce o indifferente (sempre dentro le regole)
   cook: { mode: "due"|"uno", dir: "sera"|"pranzo" },
   seed,                          // cambia a ogni «Rigenera» per variare il piano
   pasti: [ { id, nome, on, piatti: [ { id, nome, varianti: [ { id, on, alimenti: [ { id, opzioni: [ { id, n, qt, u, on } ] } ] } ] } ] } ],
@@ -94,7 +95,10 @@ Una *variante* è un'alternativa completa del piatto; un *alimento* è una voce 
   settimanali, esclusione al superamento dei massimi, penalità per ripetizioni e per lo stesso cibo due volte nel giorno. Con `cook.mode === "uno"` le coppie
   cena→pranzo del giorno dopo (`dir "sera"`) o pranzo→cena (`dir "pranzo"`) riusano lo stesso cereale/proteina/verdura quando il secondo pasto ha quell'opzione attiva,
   e il primo riceve la nota «cucina X in totale».
-- **Spesa** (`makeSpesa`): somma per nome+unità e raggruppa per reparto (`DC`). Nessuna marca consigliata.
+- **Pasti liberi**: `regole.libero.n` a settimana; `makePlan` mette «Pasto libero» (`libero: true`) a cena a partire dal sabato, fuori da conteggi e spesa.
+- **Preferenza** (`pref`): bonus/penalità nel punteggio di `makePlan` per carne o pesce, senza superare le regole.
+- **Spesa** (`makeSpesa`): somma per nome+unità e raggruppa per reparto (`DC`); la lista mostra solo cosa comprare, senza quantità. Nessuna marca consigliata.
+- **Creazione dieta** (finestra `dieta`): `src` → `pasti` → `alim` (un pasto alla volta, `mi`) → `regole` (se il JSON non le ha le chiede, `RULEDEF`) → `pref` → `cucina`.
 
 ## JSON e IA
 
@@ -112,7 +116,7 @@ allenamenti e crea una sessione conclusa (`fatti`).
 
 **Dieta** (`"gymtrack": "dieta"`) — *Dieta → Nuova dieta*:
 
-Le chiavi di `regole` sono quelle di `optKeys()` (carne, pesce, tonno, uova, latt, legu, patate); `min`/`max` sono volte a settimana.
+Le chiavi di `regole` sono quelle di `optKeys()` (carne, rossa, pesce, tonno, uova, latt, legu, patate) più `libero`; `min`/`max` sono volte a settimana.
 
 ## Persistenza e cloud
 

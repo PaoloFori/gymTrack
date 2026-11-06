@@ -28,7 +28,8 @@ function makePlan(d, seed) {
     cook = d.cook || { mode: "due" },
     meals = d.pasti.filter(function (m) {
       return m.on;
-    });
+    }),
+    pref = d.pref || "indiff";
   var li = meals.findIndex(function (m) {
       return /pranzo/i.test(m.nome);
     }),
@@ -37,6 +38,18 @@ function makePlan(d, seed) {
     });
   var batch = cook.mode === "uno" && li >= 0 && di >= 0,
     picks = {}; /* picks[giorno][pasto] = [{role, name, entry}] */
+  /* pasti liberi (sgarro): regole.libero.n a settimana, a cena (o all'ultimo pasto), in giorni distanziati */
+  var nFree = Math.min(14, (R.libero && Number(R.libero.n)) || 0),
+    freeMi =
+      di >= 0
+        ? meals.findIndex(function (m) {
+            return /cena/i.test(m.nome);
+          })
+        : meals.length - 1,
+    freeAt = {};
+  [5, 2, 6, 0, 3, 1, 4].forEach(function (fd, i) {
+    if (i < nFree) freeAt[fd] = freeMi;
+  });
   function hash(s) {
     var h = 0;
     for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
@@ -80,6 +93,11 @@ function makePlan(d, seed) {
         s -= (c / r.max) * 2;
       }
     });
+    var ok = optKeys(o.n);
+    if (pref !== "indiff") {
+      if (ok.indexOf(pref) >= 0) s += 4;
+      else if (ok.indexOf(pref === "carne" ? "pesce" : "carne") >= 0) s -= 2;
+    }
     s -= (use[o.id] || 0) * 3;
     if (last[o.id] === day - 1) s -= 4;
     if (dayNames[nname(o.n)]) s -= 6;
@@ -92,6 +110,11 @@ function makePlan(d, seed) {
     meals.forEach(function (m, mi) {
       var entries = [],
         mine = [];
+      if (freeAt[day] === mi) {
+        picks[day][mi] = [];
+        dayPlan.push({ t: m.nome, v: [{ n: "Pasto libero", qt: 0, u: "", libero: true, nota: "con moderazione, a buon senso" }] });
+        return;
+      }
       m.piatti.forEach(function (p) {
         var v = pickVar(p, day, mi);
         if (!v) return;
@@ -222,6 +245,7 @@ function makeSpesa(d, old) {
   d.plan.forEach(function (day) {
     day.forEach(function (m) {
       m.v.forEach(function (it) {
+        if (it.libero) return;
         var k = nname(it.n) + "|" + it.u,
           t = tot[k] || (tot[k] = { k: k, n: it.n, u: it.u, q: 0 });
         t.q += it.qt;

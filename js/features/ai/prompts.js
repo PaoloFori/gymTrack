@@ -9,7 +9,7 @@ var SCHEMA_DIETA = `{
   "v": 1,
   "nome": "titolo della dieta",
   "periodo": { "dal": "AAAA-MM-GG", "al": "AAAA-MM-GG" },
-  "regole": { "carne": { "max": 4 }, "pesce": { "min": 3 }, "tonno": { "max": 1 }, "uova": { "min": 2 }, "latt": { "min": 2 }, "legu": { "min": 2 }, "patate": { "max": 2 } },
+  "regole": { "carne": { "max": 4 }, "pesce": { "min": 3 }, "tonno": { "max": 1 }, "uova": { "min": 2 }, "latt": { "min": 2 }, "legu": { "min": 2 }, "patate": { "max": 2 }, "rossa": { "max": 2 }, "libero": { "n": 1 } },
   "pasti": [
     {
       "nome": "Colazione",
@@ -34,7 +34,7 @@ var SCHEMA_DIETA_REGOLE = `- "pasti": nell'ordine della giornata (Colazione, Spu
 - "varianti": alternative COMPLETE dello stesso piatto (se il piano dice "Alternativa", ogni alternativa è una variante; altrimenti una sola).
 - "alimenti": le voci da mangiare insieme nella variante.
 - "opzioni": per ogni voce, prima l'alimento prescritto e poi le sostituzioni equivalenti ("puoi sostituire con…"), ognuna con la propria quantità "qt" (numero) e unità "u" ("g", "ml" o "pz").
-- "regole" (facoltativo): solo se il piano indica frequenze settimanali. Chiavi ammesse: carne, pesce, tonno, uova, latt (latticini e formaggi), legu (legumi), patate. "min"/"max" sono volte a settimana.
+- "regole" (facoltativo): solo se il piano indica frequenze settimanali. Chiavi ammesse: carne (bianca e rossa), rossa (solo carne rossa), pesce, tonno, uova, latt (latticini e formaggi), legu (legumi), patate, libero. "min"/"max" sono volte a settimana; "libero": { "n": … } è il numero di pasti liberi (sgarro) a settimana. Cerca queste frequenze in tutto il piano, comprese le note e le tabelle laterali, e se due punti si contraddicono usa il valore più prudente. Se il piano non le indica, omettile: l'app le chiederà.
 - "periodo" (facoltativo): le date di validità del piano, se indicate.`;
 var SCHEMA_SESSIONE = `{
   "gymtrack": "sessione",

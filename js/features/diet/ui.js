@@ -14,7 +14,7 @@ function dayHTML(plan, i) {
               '<div class="it"><span>' +
               esc(it.n) +
               "</span><span>" +
-              esc(fmtQ(it.qt, it.u)) +
+              (it.libero ? "" : esc(fmtQ(it.qt, it.u))) +
               "</span></div>" +
               (it.nota ? '<div class="hint" style="margin:0 0 4px;color:var(--accent)">' + esc(it.nota) + "</div>" : "")
             );
@@ -176,7 +176,7 @@ function vDietaD() {
       d.spesa.length +
       ' presi</span></div><div class="prog"><i style="width:' +
       (d.spesa.length ? ((100 * done) / d.spesa.length).toFixed(0) : 0) +
-      '%"></i></div><p class="hint">Quantità per una settimana, a crudo.</p></div>';
+      '%"></i></div><p class="hint">Cosa comprare per la settimana: le quantità le decidi tu, secondo le porzioni del piano.</p></div>';
     order.forEach(function (g) {
       h +=
         '<div class="card"><h3>' +
@@ -194,8 +194,6 @@ function vDietaD() {
               '"><span class="bx">✓</span><span class="grow"><span class="sn2">' +
               esc(x.n) +
               "</span>" +
-              '</span><span class="qt">' +
-              esc(fmtQ(x.q, x.u)) +
               "</span></button>"
             );
           })
@@ -283,7 +281,8 @@ ACT["d-edit"] = function (d) {
     editId: de.id,
     nome: de.nome,
     pasti: clone(de.pasti),
-    regole: de.regole,
+    regole: clone(de.regole || {}),
+    pref: de.pref || "indiff",
     periodo: de.periodo,
     cook: de.cook ? de.cook.mode : "due",
     dir: (de.cook && de.cook.dir) || "sera",

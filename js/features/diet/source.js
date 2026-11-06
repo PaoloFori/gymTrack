@@ -73,6 +73,7 @@ function dietIngest(src) {
   k.busy = false;
   k.pasti = r.pasti;
   k.regole = r.regole;
+  k.pref = "indiff";
   k.periodo = r.periodo;
   k.nome =
     r.nome ||
@@ -159,7 +160,8 @@ ACT["d-copy"] = function () {
     return;
   }
   sheet.pasti = reId(clone(cf.pasti));
-  sheet.regole = clone(cf.regole);
+  sheet.regole = clone(cf.regole || {});
+  sheet.pref = cf.pref || "indiff";
   sheet.periodo = cf.periodo || null;
   sheet.nome = cf.nome + " (copia)";
   sheet.cook = (cf.cook && cf.cook.mode) || "due";

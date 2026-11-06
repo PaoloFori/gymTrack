@@ -65,6 +65,7 @@ function optKeys(n) {
   if (/legumi|ceci|lenticch|fagioli|piselli|\bfave\b/.test(l)) k.push("legu");
   if (/patate|gnocchi/.test(l)) k.push("patate");
   if (catOf(l) === "carne" && !/affettat|vegetale/.test(l)) k.push("carne");
+  if (/manzo|bovino|vitello|maiale|agnello|salsiccia|hamburger|cavallo/.test(l) && !/affettat|vegetale/.test(l)) k.push("rossa");
   return k;
 }
 function titleCase(s) {
@@ -135,7 +136,7 @@ function dietFromJson(o) {
   if (!pasti.length) throw new Error("Nessun pasto nel JSON.");
   return {
     pasti: pasti,
-    regole: o.regole && typeof o.regole === "object" ? o.regole : { patate: { max: 2 } },
+    regole: o.regole && typeof o.regole === "object" ? o.regole : {},
     periodo: o.periodo || null,
     nome: o.nome ? String(o.nome) : ""
   };

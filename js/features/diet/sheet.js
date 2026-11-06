@@ -48,77 +48,88 @@ function dietSheet() {
     return sheetShell(k.editId ? "Modifica la dieta" : "Quali pasti fai?", b + err, nav("d-next", "Avanti"));
   }
   if (k.step === "alim") {
-    b +=
-      '<p class="meta" style="margin:0 0 4px">Per ogni pasto togli la spunta agli alimenti che non mangeresti e correggi le quantità: il piano userà solo quelli.</p>';
-    k.pasti
-      .filter(function (m) {
+    var ms = k.pasti.filter(function (m) {
         return m.on;
-      })
-      .forEach(function (m) {
-        b += '<div class="meta" style="margin:16px 0 0;font-weight:700;font-size:16px;color:var(--ink)">' + esc(m.nome) + "</div>";
-        m.piatti.forEach(function (p) {
-          b += '<div class="meta" style="margin:8px 0 0;font-weight:600">' + esc(p.nome) + "</div>";
-          p.varianti.forEach(function (v, vi) {
-            if (p.varianti.length > 1)
+      }),
+      mi = Math.min(k.mi || 0, ms.length - 1),
+      cm = ms[mi];
+    b +=
+      '<p class="meta" style="margin:0 0 4px">Pasto ' +
+      (mi + 1) +
+      " di " +
+      ms.length +
+      ". Togli la spunta agli alimenti che non mangeresti e correggi le quantità: il piano userà solo quelli.</p>";
+    [cm].forEach(function (m) {
+      b += '<div class="meta" style="margin:16px 0 0;font-weight:700;font-size:16px;color:var(--ink)">' + esc(m.nome) + "</div>";
+      m.piatti.forEach(function (p) {
+        b += '<div class="meta" style="margin:8px 0 0;font-weight:600">' + esc(p.nome) + "</div>";
+        p.varianti.forEach(function (v, vi) {
+          if (p.varianti.length > 1)
+            b +=
+              '<label class="fd" style="border-top:2px solid var(--line)"><input type="checkbox" data-chk="' +
+              v.id +
+              '"' +
+              (v.on ? " checked" : "") +
+              '><span class="nm"><b>Alternativa ' +
+              (vi + 1) +
+              '</b><span class="meta">' +
+              esc(
+                v.alimenti
+                  .map(function (a) {
+                    return a.opzioni[0].n;
+                  })
+                  .join(" + ")
+              ) +
+              "</span></span></label>";
+          if (v.on)
+            v.alimenti.forEach(function (a) {
               b +=
-                '<label class="fd" style="border-top:2px solid var(--line)"><input type="checkbox" data-chk="' +
-                v.id +
-                '"' +
-                (v.on ? " checked" : "") +
-                '><span class="nm"><b>Alternativa ' +
-                (vi + 1) +
-                '</b><span class="meta">' +
-                esc(
-                  v.alimenti
-                    .map(function (a) {
-                      return a.opzioni[0].n;
-                    })
-                    .join(" + ")
-                ) +
-                "</span></span></label>";
-            if (v.on)
-              v.alimenti.forEach(function (a) {
-                b +=
-                  '<div class="itm">' +
-                  a.opzioni
-                    .map(function (o) {
-                      return (
-                        '<div class="opt"><input type="checkbox" data-chk="' +
-                        o.id +
-                        '"' +
-                        (o.on ? " checked" : "") +
-                        ' aria-label="' +
-                        esc(o.n) +
-                        '"><span class="nm">' +
-                        esc(o.n) +
-                        '</span><input class="q" inputmode="decimal" data-oq="' +
-                        o.id +
-                        '" value="' +
-                        esc(String(o.qt).replace(".", ",")) +
-                        '" aria-label="Quantità ' +
-                        esc(o.n) +
-                        '"><span class="u">' +
-                        esc(o.u) +
-                        "</span></div>"
-                      );
-                    })
-                    .join("") +
-                  "</div>";
-              });
-          });
+                '<div class="itm">' +
+                a.opzioni
+                  .map(function (o) {
+                    return (
+                      '<div class="opt"><input type="checkbox" data-chk="' +
+                      o.id +
+                      '"' +
+                      (o.on ? " checked" : "") +
+                      ' aria-label="' +
+                      esc(o.n) +
+                      '"><span class="nm">' +
+                      esc(o.n) +
+                      '</span><input class="q" inputmode="decimal" data-oq="' +
+                      o.id +
+                      '" value="' +
+                      esc(String(o.qt).replace(".", ",")) +
+                      '" aria-label="Quantità ' +
+                      esc(o.n) +
+                      '"><span class="u">' +
+                      esc(o.u) +
+                      "</span></div>"
+                    );
+                  })
+                  .join("") +
+                "</div>";
+            });
         });
       });
+    });
     var items = [];
     k.pasti.forEach(function (m) {
-      if (m.on)
+      if (m === cm)
         m.piatti.forEach(function (p) {
           p.varianti.forEach(function (v) {
             v.alimenti.forEach(function (a) {
-              items.push([a.id, m.nome + " · " + a.opzioni[0].n]);
+              items.push([a.id, a.opzioni[0].n]);
             });
           });
         });
     });
+    if (
+      !items.some(function (i) {
+        return i[0] === k.addItem;
+      })
+    )
+      k.addItem = items.length ? items[0][0] : "";
     b +=
       '<div class="meta" style="margin:20px 0 6px;font-weight:600">Aggiungi un alimento che mangi</div><div class="field"><select data-sf="addItem" aria-label="A quale voce">' +
       items
@@ -131,7 +142,51 @@ function dietSheet() {
       '" style="flex:1;min-width:0" class="grow"><input data-sf="addQt" inputmode="decimal" placeholder="g" value="' +
       esc(k.addQt || "") +
       '" style="width:70px"><button class="btn small" data-act="d-addopt">Aggiungi</button></div><p class="hint">Se aggiungi lo stesso alimento a pranzo e a cena, con la cottura unica potrai cucinarlo una volta sola.</p><div style="height:12px"></div>';
-    return sheetShell("Cosa mangi davvero?", b + err, nav("d-next", "Avanti"));
+    return sheetShell(cm.nome + " · " + (mi + 1) + "/" + ms.length, b + err, nav("d-next", "Avanti"));
+  }
+  if (k.step === "regole") {
+    var R = k.regole || (k.regole = {});
+    b += k.noRules
+      ? '<div class="banner" style="margin-bottom:12px"><b>Il piano non indica regole</b>Dimmi quante volte a settimana mangi questi alimenti: servono a variare la dieta. Lascia vuoto dove non c\'è un limite.</div>'
+      : '<p class="meta" style="margin:0 0 8px">Queste sono le regole che ho trovato nel piano. Correggile o completale: servono a variare la dieta (vuoto = nessun limite).</p>';
+    b += '<div class="itm">';
+    RULEDEF.forEach(function (r) {
+      var t = ruleType(r[0], R),
+        v = R[r[0]] && R[r[0]][t];
+      b +=
+        '<div class="opt"><span class="nm">' +
+        r[1] +
+        '<span class="meta" style="display:block;margin:0">' +
+        (t === "min" ? "almeno" : "al massimo") +
+        '</span></span><input class="q" inputmode="numeric" data-rule="' +
+        r[0] +
+        '" value="' +
+        (v == null ? "" : v) +
+        '" placeholder="–" aria-label="' +
+        r[1] +
+        '"><span class="u">a sett.</span></div>';
+    });
+    b +=
+      '<div class="opt"><span class="nm">Pasti liberi<span class="meta" style="display:block;margin:0">sgarro, in settimana</span></span><input class="q" inputmode="numeric" data-rule="libero" value="' +
+      (R.libero && R.libero.n != null ? R.libero.n : "") +
+      '" placeholder="0" aria-label="Pasti liberi a settimana"><span class="u">a sett.</span></div></div>';
+    return sheetShell("Regole della dieta", b + err, nav("d-next", "Avanti"));
+  }
+  if (k.step === "pref") {
+    var pf = k.pref || "indiff";
+    b +=
+      '<p class="meta" style="margin:0 0 10px">Cosa preferisci mangiare? Il piano ne mette di più, ma sempre dentro le regole di prima.</p><div class="seg" style="grid-template-columns:1fr;gap:8px">' +
+      [
+        ["carne", "Più carne"],
+        ["pesce", "Più pesce"],
+        ["indiff", "Indifferente: un po' di tutto"]
+      ]
+        .map(function (o) {
+          return '<button data-act="d-pref" data-m="' + o[0] + '" aria-pressed="' + (pf === o[0]) + '">' + o[1] + "</button>";
+        })
+        .join("") +
+      "</div>";
+    return sheetShell("Carne o pesce?", b + err, nav("d-next", "Avanti"));
   }
   /* cucina */
   b +=
@@ -178,6 +233,24 @@ function dietSheet() {
   else b += '<p class="hint" style="margin:0 0 12px">Piano normale: pranzo e cena sono preparati separatamente.</p>';
   return sheetShell(k.editId ? "Aggiorna il piano" : "Crea il piano", b + err, nav("d-make", k.editId ? "Aggiorna piano" : "Crea piano"));
 }
+/* Regole settimanali: chiave, nome, tipo predefinito (min = almeno, max = al massimo). */
+var RULEDEF = [
+  ["carne", "Carne (bianca e rossa)", "max"],
+  ["rossa", "Carne rossa", "max"],
+  ["pesce", "Pesce", "min"],
+  ["tonno", "Tonno in scatola", "max"],
+  ["uova", "Uova", "min"],
+  ["latt", "Latticini e formaggi", "min"],
+  ["legu", "Legumi", "min"],
+  ["patate", "Patate e gnocchi", "max"]
+];
+function ruleType(key, R) {
+  if (R[key] && R[key].min != null) return "min";
+  if (R[key] && R[key].max != null) return "max";
+  return RULEDEF.find(function (r) {
+    return r[0] === key;
+  })[2];
+}
 function dietMake() {
   var k = sheet;
   if (!k.editId && !k.sessId) {
@@ -211,6 +284,8 @@ function dietMake() {
   if (d) {
     d.nome = k.nome.trim() || d.nome;
     d.pasti = k.pasti;
+    d.regole = k.regole || {};
+    d.pref = k.pref || "indiff";
     d.cook = cook;
     d.seed = (d.seed || 0) + 1;
   } else {
@@ -219,7 +294,8 @@ function dietMake() {
       nome: k.nome.trim() || "Dieta " + (S.diete.length + 1),
       creata: Date.now(),
       periodo: k.periodo || null,
-      regole: k.regole || { patate: { max: 2 } },
+      regole: k.regole || {},
+      pref: k.pref || "indiff",
       pasti: k.pasti,
       cook: cook,
       seed: 0,
@@ -246,8 +322,16 @@ function dietMake() {
 }
 
 ACT["d-back"] = function () {
-  var back = { cucina: "alim", alim: "pasti", pasti: "src", genout: "gen", gen: "src" };
-  sheet.step = back[sheet.step] || "src";
+  var back = { cucina: "pref", pref: "regole", regole: "alim", alim: "pasti", pasti: "src", genout: "gen", gen: "src" };
+  if (sheet.step === "alim" && sheet.mi > 0) sheet.mi--;
+  else {
+    if (sheet.step === "regole")
+      sheet.mi =
+        sheet.pasti.filter(function (m) {
+          return m.on;
+        }).length - 1;
+    sheet.step = back[sheet.step] || "src";
+  }
   sheet.err = "";
   render();
 };
@@ -263,19 +347,18 @@ ACT["d-next"] = function (d) {
       return;
     }
     sheet.step = "alim";
-    var fi = null;
-    sheet.pasti.forEach(function (m) {
-      if (m.on && !fi)
-        m.piatti.forEach(function (p) {
-          p.varianti.forEach(function (v) {
-            v.alimenti.forEach(function (a) {
-              if (!fi) fi = a.id;
-            });
-          });
-        });
-    });
-    sheet.addItem = sheet.addItem || fi;
-  } else if (sheet.step === "alim") sheet.step = "cucina";
+    sheet.mi = 0;
+  } else if (sheet.step === "alim") {
+    var nm = sheet.pasti.filter(function (m) {
+      return m.on;
+    }).length;
+    if (sheet.mi < nm - 1) sheet.mi++;
+    else {
+      sheet.step = "regole";
+      sheet.noRules = !Object.keys(sheet.regole || {}).length;
+    }
+  } else if (sheet.step === "regole") sheet.step = "pref";
+  else if (sheet.step === "pref") sheet.step = "cucina";
   sheet.err = "";
   render();
   if (document.querySelector(".sheet")) document.querySelector(".sheet").scrollTop = 0;
@@ -311,6 +394,10 @@ ACT["d-ses"] = function (d) {
   sheet.sessId = sheet.sessId === d.id ? "" : d.id;
   render();
 };
+ACT["d-pref"] = function (d) {
+  sheet.pref = d.m;
+  render();
+};
 ACT["d-cook"] = function (d) {
   sheet.cook = d.m;
   render();
@@ -326,6 +413,19 @@ ACT["d-make"] = function (d) {
 SHEETS.dieta = { html: dietSheet };
 
 HOOKS.input.push(function (t) {
+  if (t.dataset.rule !== undefined && sheet && sheet.regole) {
+    var key = t.dataset.rule,
+      n = parseInt(t.value, 10),
+      Rg = sheet.regole;
+    if (isNaN(n) || n < 0) delete Rg[key];
+    else if (key === "libero") Rg.libero = { n: n };
+    else {
+      var ty = ruleType(key, Rg);
+      Rg[key] = {};
+      Rg[key][ty] = n;
+    }
+    return true;
+  }
   if (t.dataset.oq !== undefined && sheet && sheet.pasti) {
     var o = dietFind(sheet, t.dataset.oq);
     if (o) o.qt = num(t.value);
