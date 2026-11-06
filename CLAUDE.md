@@ -4,60 +4,13 @@ GymTrack è una **PWA statica** (nessun server, nessuna build, nessuna dipendenz
 allenamenti, diete e di un **avatar** che cresce con l'impegno. Tutto è in italiano. I dati stanno solo sul dispositivo
 (localStorage + copie in IndexedDB). Va servita su HTTPS (GitHub Pages) per avere service worker e notifiche.
 
-## Cosa fa l'app
-
-- **Sessioni** (1–12 mesi): ognuna ha obiettivo, allenamenti a settimana, avatar, schede e opzionalmente una dieta (`dietId`).
-  Ne esiste al massimo **una in corso** (`attiva()`); le altre sono concluse (`chiusa: true`) e formano lo storico.
-- **Avatar** (10 specie, stile cartoon), disegnato in SVG da codice: il corpo si interpola tra «fuori obiettivo» (p=0) e «obiettivo perfetto» (p=1);
-  nomi dei livelli, accessori e animazione dipendono da obiettivo, aura e dieta.
-- **Allenamento**: lista esercizi → dettaglio esercizio con serie e timer di recupero → «Fatto» → «Fine scheda» (salva subito).
-- **Dieta**: da JSON → scelta pasti → scelta alimenti e quantità → piano settimanale + lista della spesa; cottura normale o
-  «una volta al giorno» (cena e pranzo successivo con gli stessi cereali/verdure, quantità totale da cucinare).
-- **Import JSON** di schede (sessione corrente o passata con avatar calcolato), **copia** di sessioni e diete.
-- **IA** (nessun assistente è collegato): l'app prepara **prompt** da incollare in un assistente esterno e riceve in risposta un
-  JSON — per convertire un PDF in JSON, per generare schede, per proporre una dieta. Ogni generazione mostra l'avviso
-  «l'IA non è un nutrizionista né un personal trainer». Se `window.claude` è disponibile (ambiente Claude) la generazione parte direttamente.
-- **Home**: profilo (si apre dalla Home), **scheda suprema** (nome solo interno, nell'app si chiama «Il tuo campione»: avatar animato + rimandi a sessione e dieta correnti + collegamento) e **calendario** in fondo.
-- **Analisi**: statistiche per sessione (+ dieta collegata) / tutto, record di tutte le sessioni, peso, storico. **Tema** a 9 palette.
-
 ## Struttura del repository
 
 Nessun bundler né moduli ES: ogni file in `js/` è uno **script classico** che condivide lo scope globale. L'ordine di
 caricamento è quello degli `<script>` in `index.html` (le funzioni si chiamano a runtime, quindi conta solo che gli statement
 di primo livello trovino ciò che usano). Il codice è formattato con **Prettier** (`.prettierrc`, `.prettierignore`).
 
-```
-index.html            scheletro e elenco degli script
-sw.js                 service worker (cache offline) — elenca tutti i file da mettere in cache
-css/                  base.css (variabili, layout, componenti, barra, finestre) · avatar.css · workout.css · diet.css · stats.css
-js/
-  core/               fondamenta, senza interfaccia
-    constants.js        chiavi di salvataggio, gruppi muscolari, obiettivi (OBJ, OBJP), attrezzi (EQ), avatar (AV, AVK)
-    gifdata.js          dataset GIF (nomi/file) e dizionario italiano→inglese per la ricerca
-    registry.js         ACT, SHEETS, HOOKS: registri (VIEWS, ACT, SHEETS, HOOKS) in cui i moduli si «iscrivono» (vedi sotto)
-    utils.js            uid, esc, clamp, date, toast, confirmed, parseLoose, copyText…
-    state.js            stato globale (S, LOG, view, sheet, session…), normalize, attiva(), getScheda()
-    storage.js          salvataggio locale/cloud, copie in IndexedDB, backup manuale, banner di promemoria
-    progress.js         progress(a) (forma, grasso, aura), stimaSettimane, simFinal
-  avatar/             levels.js (nomi delle evoluzioni e stage) · draw.js (SVG: rig, specie, abbigliamento, aura a fiamme) · anim.js (animazione SMIL)
-  ui/                 schermate e finestre generiche
-    shell.js            hdr, TABS, go() con swipe, barra in basso, sheetShell, sheetHTML, render()
-    home.js             Home: profilo, scheda suprema (supremaCard), calendario in fondo
-    analysis.js         Analisi: ambito (tutto/sessione), statistiche, record, peso, storico
-    sessions.js         pagina Sessioni (corrente + storico) e griglie con selezione
-    session.js          dettaglio sessione corrente/passata, scheda, storico allenamenti
-    session-sheets.js   finestre nuova sessione / scheda / esercizio e relative azioni
-    profile.js          pagina Profilo (aperta dalla Home): dati personali, notifiche, backup
-    calendar.js · charts.js   riquadro calendario (calCard); grafici, record, peso
-  features/           funzioni di dominio, ognuna con modello, viste e azioni
-    gifs.js · history.js · theme.js
-    workout/            runtime.js (timer, notifiche, salvataggio) · ui.js (lista esercizi e dettaglio)
-    diet/               model.js (categorie, JSON) · plan.js (piano e spesa) · ui.js (viste) · source.js (da dove arriva: JSON/IA/copia) · sheet.js (pasti → alimenti → cottura)
-    ai/                 prompts.js (schemi JSON e prompt) · sheet.js (finestra «Schede con IA», email)
-    import.js           caricamento schede da JSON e creazione sessione corrente/passata
-  app/                actions.js (smistamento delle azioni) · events.js (listener globali) · boot.js (avvio)
-private/              IGNORATA da git: JSON personali di schede e diete (non pubblicare)
-```
+`private/` è ignorata da git (JSON personali). `sw.js` elenca i file in cache. Il resto si trova con `ls`.
 
 ### Registri (come si aggiunge una funzione)
 Niente grossi `switch`: ogni modulo registra ciò che gestisce in `core/registry.js`.
@@ -154,39 +107,11 @@ Un JSON del tipo sbagliato viene rifiutato (`"gymtrack"` distingue `dieta` da `s
 
 **Schede / sessione** (`"gymtrack": "sessione"`) — *Sessioni → Carica JSON*:
 
-```json
-{
-  "gymtrack": "sessione", "v": 1,
-  "nome": "Marzo–maggio 2026", "obiettivo": "Ipertrofia", "giorni": 4,
-  "periodo": { "dal": "2026-03-09", "al": "2026-05-03" },
-  "schede": [
-    { "nome": "Push", "note": "",
-      "esercizi": [
-        { "nome": "Distensioni manubri panca piana", "nome_en": "dumbbell bench press", "gruppo": "Petto",
-          "serie": 4, "reps": "6/8", "rec": 120, "note": "Panca 20°", "riscal": 0, "sup": false }
-      ] }
-  ]
-}
-```
 `rec` in secondi; `nome_en` (facoltativo) serve a trovare la GIF; `gruppo` è uno di `GR`. Dopo la lettura l'app chiede se è la scheda corrente; se no, chiede periodo e numero di
 allenamenti e crea una sessione conclusa (`fatti`).
 
 **Dieta** (`"gymtrack": "dieta"`) — *Dieta → Nuova dieta*:
 
-```json
-{
-  "gymtrack": "dieta", "v": 1, "nome": "Dieta 9 mar – 3 mag 2026",
-  "periodo": { "dal": "2026-03-09", "al": "2026-05-03" },
-  "regole": { "pesce": { "min": 3 }, "carne": { "max": 5 }, "patate": { "max": 2 } },
-  "pasti": [
-    { "nome": "Pranzo", "piatti": [ { "nome": "Piatto unico", "varianti": [
-      { "alimenti": [
-        { "opzioni": [ { "nome": "Riso", "qt": 100, "u": "g" }, { "nome": "Quinoa", "qt": 100, "u": "g" } ] },
-        { "opzioni": [ { "nome": "Verdura", "qt": 200, "u": "g" } ] }
-      ] } ] } ] }
-  ]
-}
-```
 Le chiavi di `regole` sono quelle di `optKeys()` (carne, pesce, tonno, uova, latt, legu, patate); `min`/`max` sono volte a settimana.
 
 ## Persistenza e cloud
@@ -196,15 +121,12 @@ Le chiavi di `regole` sono quelle di `optKeys()` (carne, pesce, tonno, uova, lat
 - Backup manuale: `exportBk()` / `importBk()` (JSON `{ v:2, S, LOG }`).
 - Le GIF sono caricate da `raw.githubusercontent.com` (dataset hasaneyldrm/exercises-dataset) e messe in cache dal service worker.
 
-## Avatar: come è disegnato
+## Avatar: gotcha
 
-`avatarSVG(kind, st, ctx)` con `st = { p, fat, aura, anim? }` e `ctx` = sessione/profilo (`avatar/draw.js`). Stile cartoon «chibi» con contorni scuri; un solo scheletro (`rig`) per tutte le 10 specie
-(`AVK`): ogni specie ha palette (`PAL`), proporzioni (`SPEC`) e parti della testa (`headParts`, `tailSVG`: orecchie, muso, criniera, corna, antenne…).
-`avState` converte progresso e obiettivo (`OBJP`: grasso `f`, muscolo `m`, magrezza `t` a inizio/fine) in `F`, `Mu`, `T` e calcola lo **stage** 0–4 (`stageOf` in `levels.js`); lo stage sceglie
-l'abbigliamento (`outfitFor`, colore per obiettivo in `OC`) e il nome dell'evoluzione (`LVN`). Accessori di obiettivo in `propsSVG`; per dimagrimento/ricomposizione c'è la **sagoma «prima»** (`ghost`).
-L'**aura** (`auraSVG`) è a fiamme di poligoni; dipende solo dai boost (`aura`), non dalla forma: alta/luminosa con più boost, colore oro → arancio → azzurro. Cape/fascia/cintura/corona sono legati ai boost.
-Con `anim` (`"train"` o `"diet"`) braccia, coda e fiamme sono animate in SMIL (`armSVG` in `anim.js`): si allena e, con la dieta, mangia una mela; fermo se l'utente ha «riduci movimento».
-Le immagini in `docs/avatar-*.png` si rigenerano con una pagina di prova che chiama `avatarSVG` per obiettivo/specie/progresso.
+- L'**aura** (`auraSVG`) dipende solo dai boost settimanali (`aura`), non dalla forma; forma ed evoluzione dipendono dal progresso (`avState`, `stageOf`).
+- Con `anim` le animazioni sono SMIL; restano ferme se l'utente ha «riduci movimento».
+- Le immagini in `docs/avatar-*.png` si rigenerano con una pagina di prova che chiama `avatarSVG` per obiettivo/specie/progresso.
+
 
 ## Come provare le modifiche
 

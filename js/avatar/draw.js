@@ -183,15 +183,10 @@ function topSVG(of, g) {
   return o;
 }
 function bottomSVG(of, g, lx, lt) {
-  var o = "";
+  var o = `<rect x="${n1(100 - g.ww - 3)}" y="${n1(g.T1 - 8)}" width="${n1(g.ww * 2 + 6)}" height="20" rx="5" fill="${of.bot}" stroke="${SK}" stroke-width="2.4"/>`;
   [-1, 1].forEach((d) => {
     o += `<rect x="${n1(100 + d * lx - (lt + 5) / 2)}" y="${n1(g.T1 - 2)}" width="${n1(lt + 5)}" height="22" rx="7" fill="${of.bot}" stroke="${SK}" stroke-width="2.4"/>`;
   });
-  o += `<rect x="${n1(100 - g.ww - 5)}" y="${n1(g.T1 - 13)}" width="${n1(g.ww * 2 + 10)}" height="24" rx="9" fill="${of.bot}" stroke="${SK}" stroke-width="2.4"/>`;
-  if (of.trim)
-    o += `<line x1="${n1(100 - g.ww - 3)}" y1="${n1(g.T1 - 6)}" x2="${n1(100 + g.ww + 3)}" y2="${n1(g.T1 - 6)}" stroke="${of.trim}" stroke-width="3"/>`;
-  if (of.belt)
-    o += `<rect x="${n1(100 - g.ww - 6)}" y="${n1(g.T1 - 26)}" width="${n1(g.ww * 2 + 12)}" height="12" rx="3" fill="#8a5a2b" stroke="${SK}" stroke-width="2.2"/><rect x="94" y="${n1(g.T1 - 27)}" width="12" height="14" rx="2" fill="#f0c040" stroke="${SK}" stroke-width="2"/>`;
   return o;
 }
 
@@ -394,6 +389,7 @@ function rig(kind, A, O, gh) {
     bs = gh ? GH : pal.bs,
     of = outfitFor(O, A.stage),
     o = "";
+  if (fem && of.top === "bare") of = Object.assign({}, of, { top: "tank", topC: of.trim || "#e5473b" });
   var R = (33 + F * 3) * sp.hs,
     hy = 84 + A.sl * 0.6,
     T0 = hy + R * 0.82,
@@ -418,6 +414,8 @@ function rig(kind, A, O, gh) {
     o += limb(100 + d * lx, T1 - 6, 100 + d * (lx + 1), 232, lt, bc);
     o += `<ellipse cx="${n1(100 + d * (lx + 4))}" cy="241" rx="${n1(lt * 0.7 + 5)}" ry="8" fill="${gh ? GH : of.shoe}" stroke="${SK}" stroke-width="2.4"/>`;
   });
+  var hp = headParts(kind, g, pal, A);
+  if (!gh && fem) o += hp.back; // capelli lunghi dietro al corpo
   /* busto, pancia, muscoli */
   o += pth(torsoPath(g, 0), bc);
   if (!gh && !alien && kind !== "umano" && kind !== "donna")
@@ -435,7 +433,7 @@ function rig(kind, A, O, gh) {
   var hands = {},
     hr = 7.5 + M * 3.5;
   [-1, 1].forEach((d) => {
-    var sx = 100 + d * (sw - 4),
+    var sx = 100 + d * (sw + 1 - M * 5), // spalle più larghe del busto se esile
       sy = T0 + 14,
       pz = {
         D: { ex: sx + d * (8 + F * 5), ey: sy + 24, hx: sx + d * (10 + F * 6), hy: sy + 48 },
@@ -453,13 +451,10 @@ function rig(kind, A, O, gh) {
       bic: M > 0.35 ? { dx: d * at * 0.2, rx: at * 0.72, ry: at * 1.05 } : null,
       band: gh ? "" : of.band
     });
-    if (!gh && (of.top === "tee" || of.top === "loose"))
-      o += `<circle cx="${n1(sx)}" cy="${n1(sy + 2)}" r="${n1(at * 1.0 + (of.top === "loose" ? 6 : 3.4))}" fill="${of.topC}" stroke="${SK}" stroke-width="2.4"/>`;
   });
   if (!gh && !A.anim) o += propsSVG(O, A, { xl: hands[-1].x, xr: hands[1].x, hy: hands[1].y, wy: T1 - 6, ww: ww, cy: T0 + 40 });
   /* testa */
-  var hp = headParts(kind, g, pal, A);
-  if (!gh) o += hp.back;
+  if (!gh && !fem) o += hp.back;
   if (F > 0.7) o += ell(100, hy + R * 0.9, R * 0.66, R * 0.3, bc, 2.4);
   var rx = R * (1 + F * 0.06) * (alien ? 0.95 : 1),
     ry = R * (alien ? 1.15 : 1);

@@ -91,6 +91,7 @@ Il piano rispetta le frequenze del JSON (es. pesce almeno 3 volte, carne al mass
 
 ## Avatar
 
+
 Dieci avatar in stile cartoon: uomo, donna, **gatto, cane, alieno**, orso, lupo, gorilla, leone, toro. Ognuno ha la sua faccia (orecchie, muso, coda, antenne…) e un corpo che va da «completamente fuori obiettivo» a «obiettivo perfetto». [Evoluzione per obiettivo](docs/avatar-evoluzione.png) · [Tutte le specie, inizio e fine](docs/avatar-specie.png).
 
 - **Cresce a ogni allenamento** completato verso l'obiettivo: ipertrofia (magro → massiccio), forza (debole → bilanciere sopra la testa), dimagrimento (sovrappeso → asciutto, con sagoma sbiadita del punto di partenza e metro da sarta), mantenimento (fuori allenamento → medaglia), ricomposizione (morbido → tonico, con sagoma sbiadita).
