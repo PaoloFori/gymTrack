@@ -32,11 +32,11 @@ dopo la prima apertura, **funziona anche senza internet**.
 
 La barra in basso ha quattro schede; puoi anche **scorrere a destra e a sinistra** per spostarti tra loro.
 
-- **Home**: in alto il tuo **profilo** (tocca per aprirlo e modificare nome, foto, età, altezza, peso, tema, notifiche e backup); poi la **scheda suprema**; in fondo il **calendario** degli allenamenti.
-  - La **scheda suprema** è il riquadro con il tuo **avatar animato** (si allena e, se c'è una dieta collegata, mangia sano). Toccandolo si apre e dà i rimandi alla **sessione corrente** e alla **dieta corrente**, con il collegamento tra le due.
+- **Home**: in alto il tuo **profilo** (tocca per aprirlo e modificare nome, foto, età, altezza, peso, tema, notifiche e backup); poi il riquadro del tuo **campione** (l'avatar); in fondo il **calendario** degli allenamenti.
+  - Il **campione** è il riquadro con il tuo **avatar animato** (si allena e, se c'è una dieta collegata, mangia sano). Toccandolo si apre e dà i rimandi alla **sessione corrente** e alla **dieta corrente**, con il collegamento tra le due.
 - **Sessioni**: la sessione corrente (tocca per vedere le schede) e lo **storico** delle sessioni passate. Da qui crei una sessione, carichi un JSON, selezioni ed elimini sessioni.
 - **Dieta**: la dieta corrente e le diete passate (ognuna con il suo titolo). Tocca una dieta per vedere **piano settimanale** (si apre il giorno di oggi) e **lista della spesa**.
-- **Analisi**: statistiche per **scheda suprema** (sessione + dieta) o per sessione, oppure per tutto insieme: allenamenti, tonnellate, aderenza, volume per settimana. Ci sono anche i **record personali di tutte le sessioni insieme**, il grafico del **peso** e lo **storico** (per sessione, per esercizio, cronologia).
+- **Analisi**: statistiche per sessione (con la dieta collegata, se c'è) o per tutto insieme: allenamenti, tonnellate, aderenza, volume per settimana. Ci sono anche i **record personali di tutte le sessioni insieme**, il grafico del **peso** e lo **storico** (per sessione, per esercizio, cronologia).
 
 ## Sessioni
 
@@ -91,10 +91,12 @@ Il piano rispetta le frequenze del JSON (es. pesce almeno 3 volte, carne al mass
 
 ## Avatar
 
-- Parte **fuori obiettivo** e **cresce a ogni allenamento**: ipertrofia (magro → massiccio), forza (debole → bilanciere sopra la testa), dimagrimento (sovrappeso → asciutto, con sagoma sbiadita del punto di partenza), mantenimento (fuori allenamento → medaglia), ricomposizione (morbido → tonico).
-- I **nomi dei livelli** cambiano con l'obiettivo (es. Esile → Colosso per l'ipertrofia, Appesantito → Scolpito per il dimagrimento).
-- A fine settimana (lunedì 00:00) conta `2 × fatti − previsti`: con 4 allenamenti previsti, 3 fatti = +2; 4 fatti = +4 e un **boost d'aura**; 0 fatti = −4. Se salti troppi allenamenti **ingrassa**.
-- Con le aure si sbloccano gli **accessori**: fascia (1), cintura (3), mantello (5), corona (7).
+Dieci avatar in stile cartoon: uomo, donna, **gatto, cane, alieno**, orso, lupo, gorilla, leone, toro. Ognuno ha la sua faccia (orecchie, muso, coda, antenne…) e un corpo che va da «completamente fuori obiettivo» a «obiettivo perfetto». [Evoluzione per obiettivo](docs/avatar-evoluzione.png) · [Tutte le specie, inizio e fine](docs/avatar-specie.png).
+
+- **Cresce a ogni allenamento** completato verso l'obiettivo: ipertrofia (magro → massiccio), forza (debole → bilanciere sopra la testa), dimagrimento (sovrappeso → asciutto, con sagoma sbiadita del punto di partenza e metro da sarta), mantenimento (fuori allenamento → medaglia), ricomposizione (morbido → tonico, con sagoma sbiadita).
+- **5 evoluzioni con nomi per obiettivo**, e l'abbigliamento cambia a ogni passo (dal completo sformato al completo da campione), per esempio: ipertrofia *Fuscello → Pulcino da palestra → Palestrato → Armadio a due ante → Colosso*; forza *Pivello → Ferro in mano → Sasso → Macigno → Titano d'acciaio*; dimagrimento *Morbidone → Sgonfiotto → Scattante → Guizzante → Fulmine*; mantenimento *Pigrone → Si rimette in moto → Costante → Equilibrista → Zen inossidabile*; ricomposizione *Bozzolo → Crisalide → Metamorfosi → Farfalla → Fenice*. Se salti troppi allenamenti ingrassa e il nome diventa buffo (es. «Ferro arrugginito»).
+- **L'aura è un'altra cosa**: si accende solo se fai **tutti gli allenamenti della settimana**. A fine settimana (lunedì 00:00) conta `2 × fatti − previsti`: con 4 allenamenti previsti, 3 fatti = +2; 4 fatti = +4 e un **boost d'aura**; 0 fatti = −4. Più boost di fila, più l'aura a fiamme (stile Dragon Ball) è alta e luminosa, e cambia colore (oro → arancio → azzurro elettrico).
+- Con le aure si sbloccano gli **accessori**: fascia (1 boost), cintura (3), mantello (5), corona (7).
 - Nella Home e nella sessione corrente l'avatar è **animato**: si allena; con una dieta collegata alterna allenamento e pasti sani. Con «riduci movimento» attivo nel telefono resta fermo.
 
 ## Tema e dati

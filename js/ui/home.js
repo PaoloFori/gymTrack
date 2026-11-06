@@ -1,4 +1,4 @@
-/* Home: profilo (si apre con un tocco), «scheda suprema» (avatar animato + collegamento sessione↔dieta) e calendario in fondo. */
+/* Home: profilo (si apre con un tocco), riquadro dell'avatar animato (collegamento sessione↔dieta) e calendario in fondo. */
 function sessLevel(x) {
   if (x.chiusa) {
     var F = x.finale || {};
@@ -56,16 +56,16 @@ function dietLinkCard(d) {
   var oggi = (d.plan[todayI()] || []).map((m) => m.t).join(", ") || "—";
   return `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">Dieta corrente</span><b class="xn">${esc(d.nome)}</b><span class="meta">Oggi: ${esc(oggi)}</span></span>${chevron()}</button>`;
 }
-/* La «scheda suprema»: avatar che si muove + sessione e dieta correnti. Toccandola si aprono i rimandi alle due schede. */
+/* Riquadro principale della Home («scheda suprema» è solo il nome interno): avatar che si muove + sessione e dieta correnti. Toccandola si aprono i rimandi alle due schede. */
 function supremaCard(a) {
   if (!a)
-    return `<div class="card"><span class="badge">Scheda suprema</span><h3 style="margin-top:8px">Nessuna sessione in corso</h3><p class="meta" style="margin:6px 0 12px">Qui trovi il tuo avatar e il collegamento tra sessione e dieta. Inizia una sessione per vederlo allenarsi.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>`;
+    return `<div class="card"><span class="badge">Il tuo campione</span><h3 style="margin-top:8px">Nessuna sessione in corso</h3><p class="meta" style="margin:6px 0 12px">Qui trovi il tuo avatar e il collegamento tra sessione e dieta. Inizia una sessione per vederlo allenarsi.</p><button class="btn primary wide" data-act="new-sess">Inizia sessione</button></div>`;
   var g = progress(a),
     d = dietOf(a),
     lv = livello(g, a.obiettivo);
   var caption = d ? `Si allena e mangia sano: segue la dieta «${esc(d.nome)}».` : "Si allena. Collega una dieta per vederlo anche mangiare sano.";
   var h = `<div class="card suprema"><button class="supbtn" data-act="sup-toggle" aria-expanded="${supOpen}">
-    <div class="row" style="margin-bottom:8px"><span class="badge">Scheda suprema</span><span class="meta grow" style="text-align:right">${esc(a.nome)}${d ? " + " + esc(d.nome) : ""}</span></div>
+    <div class="row" style="margin-bottom:8px"><span class="badge">Il tuo campione</span><span class="meta grow" style="text-align:right">${esc(a.nome)}${d ? " + " + esc(d.nome) : ""}</span></div>
     <div class="avstage">${avatarSVG(a.tipo, { p: g.p, fat: g.fat, aura: g.aura, anim: d ? "diet" : "train" }, a)}</div>
     <div class="row" style="margin-top:12px"><div class="lvl grow">${esc(lv)}</div><div class="meta" style="font-weight:600">Forma ${Math.round(g.P)} / 100</div></div>
     <div class="prog"><i style="width:${g.P.toFixed(1)}%"></i></div>

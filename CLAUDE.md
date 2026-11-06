@@ -8,7 +8,7 @@ allenamenti, diete e di un **avatar** che cresce con l'impegno. Tutto è in ital
 
 - **Sessioni** (1–12 mesi): ognuna ha obiettivo, allenamenti a settimana, avatar, schede e opzionalmente una dieta (`dietId`).
   Ne esiste al massimo **una in corso** (`attiva()`); le altre sono concluse (`chiusa: true`) e formano lo storico.
-- **Avatar** (7 tipi), disegnato in SVG da codice: il corpo si interpola tra «fuori obiettivo» (p=0) e «obiettivo perfetto» (p=1);
+- **Avatar** (10 specie, stile cartoon), disegnato in SVG da codice: il corpo si interpola tra «fuori obiettivo» (p=0) e «obiettivo perfetto» (p=1);
   nomi dei livelli, accessori e animazione dipendono da obiettivo, aura e dieta.
 - **Allenamento**: lista esercizi → dettaglio esercizio con serie e timer di recupero → «Fatto» → «Fine scheda» (salva subito).
 - **Dieta**: da JSON → scelta pasti → scelta alimenti e quantità → piano settimanale + lista della spesa; cottura normale o
@@ -17,8 +17,8 @@ allenamenti, diete e di un **avatar** che cresce con l'impegno. Tutto è in ital
 - **IA** (nessun assistente è collegato): l'app prepara **prompt** da incollare in un assistente esterno e riceve in risposta un
   JSON — per convertire un PDF in JSON, per generare schede, per proporre una dieta. Ogni generazione mostra l'avviso
   «l'IA non è un nutrizionista né un personal trainer». Se `window.claude` è disponibile (ambiente Claude) la generazione parte direttamente.
-- **Home**: profilo (si apre dalla Home), **scheda suprema** (avatar animato + rimandi a sessione e dieta correnti + collegamento) e **calendario** in fondo.
-- **Analisi**: statistiche per scheda suprema (sessione + dieta) / sessione / tutto, record di tutte le sessioni, peso, storico. **Tema** a 9 palette.
+- **Home**: profilo (si apre dalla Home), **scheda suprema** (nome solo interno, nell'app si chiama «Il tuo campione»: avatar animato + rimandi a sessione e dieta correnti + collegamento) e **calendario** in fondo.
+- **Analisi**: statistiche per sessione (+ dieta collegata) / tutto, record di tutte le sessioni, peso, storico. **Tema** a 9 palette.
 
 ## Struttura del repository
 
@@ -39,7 +39,7 @@ js/
     state.js            stato globale (S, LOG, view, sheet, session…), normalize, attiva(), getScheda()
     storage.js          salvataggio locale/cloud, copie in IndexedDB, backup manuale, banner di promemoria
     progress.js         progress(a) (forma, grasso, aura), stimaSettimane, simFinal
-  avatar/             levels.js (nomi dei livelli) · draw.js (SVG: corpo, accessori, aura) · anim.js (animazione SMIL)
+  avatar/             levels.js (nomi delle evoluzioni e stage) · draw.js (SVG: rig, specie, abbigliamento, aura a fiamme) · anim.js (animazione SMIL)
   ui/                 schermate e finestre generiche
     shell.js            hdr, TABS, go() con swipe, barra in basso, sheetShell, sheetHTML, render()
     home.js             Home: profilo, scheda suprema (supremaCard), calendario in fondo
@@ -101,7 +101,7 @@ S = {
   tema: { pal: "blu", mode: "auto|light|dark" }, lastBackup: ts
 }
 sessione = {
-  id, nome, tipo,               // tipo = avatar: umano|donna|animale(orso)|lupo|gorilla|leone|toro
+  id, nome, tipo,               // tipo = avatar: umano|donna|gatto|cane|alieno|animale(orso)|lupo|gorilla|leone|toro
   start, mesi, giorni,          // inizio (ts), durata in mesi, allenamenti a settimana
   obiettivo,                    // Ipertrofia|Forza|Dimagrimento|Mantenimento|Ricomposizione
   altezza, eta, peso, chiusa, chiuseTs,
@@ -198,10 +198,13 @@ Le chiavi di `regole` sono quelle di `optKeys()` (carne, pesce, tonno, uova, lat
 
 ## Avatar: come è disegnato
 
-`avatarSVG(kind, st, ctx)` con `st = { p, fat, aura, anim? }` e `ctx` = sessione/profilo. `avState` converte progresso e obiettivo (`OBJP`: grasso `f`, muscolo `m`, magrezza `t`
-a inizio/fine) in `F`, `Mu`, `T`; `drawHuman` (uomo/donna) e `drawBeast` (animali) li usano per spalle, vita, arti, addominali. Accessori: manubri/bilanciere/metro/medaglia
-(`propsSVG`) e aura. Per dimagrimento e ricomposizione c'è anche la **sagoma «prima»**. Con `anim` (`"train"` o `"diet"`) le braccia sono animate in SMIL (`animArm`): si allena
-e, con la dieta, mangia una mela; resta ferma se l'utente ha «riduci movimento».
+`avatarSVG(kind, st, ctx)` con `st = { p, fat, aura, anim? }` e `ctx` = sessione/profilo (`avatar/draw.js`). Stile cartoon «chibi» con contorni scuri; un solo scheletro (`rig`) per tutte le 10 specie
+(`AVK`): ogni specie ha palette (`PAL`), proporzioni (`SPEC`) e parti della testa (`headParts`, `tailSVG`: orecchie, muso, criniera, corna, antenne…).
+`avState` converte progresso e obiettivo (`OBJP`: grasso `f`, muscolo `m`, magrezza `t` a inizio/fine) in `F`, `Mu`, `T` e calcola lo **stage** 0–4 (`stageOf` in `levels.js`); lo stage sceglie
+l'abbigliamento (`outfitFor`, colore per obiettivo in `OC`) e il nome dell'evoluzione (`LVN`). Accessori di obiettivo in `propsSVG`; per dimagrimento/ricomposizione c'è la **sagoma «prima»** (`ghost`).
+L'**aura** (`auraSVG`) è a fiamme di poligoni; dipende solo dai boost (`aura`), non dalla forma: alta/luminosa con più boost, colore oro → arancio → azzurro. Cape/fascia/cintura/corona sono legati ai boost.
+Con `anim` (`"train"` o `"diet"`) braccia, coda e fiamme sono animate in SMIL (`armSVG` in `anim.js`): si allena e, con la dieta, mangia una mela; fermo se l'utente ha «riduci movimento».
+Le immagini in `docs/avatar-*.png` si rigenerano con una pagina di prova che chiama `avatarSVG` per obiettivo/specie/progresso.
 
 ## Come provare le modifiche
 

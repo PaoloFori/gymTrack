@@ -39,121 +39,6 @@
   text-transform: uppercase;
 }
 
-.a-body {
-  fill: var(--bc, var(--accent));
-}
-
-.a-bodys {
-  stroke: var(--bc, var(--accent));
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.a-dk {
-  fill: var(--bd, #1d2733);
-}
-
-.a-hair {
-  fill: var(--hc, #2b2118);
-}
-
-.a-cloth {
-  fill: var(--accent);
-}
-
-.a-shade {
-  fill: #000;
-  opacity: 0.13;
-}
-
-.a-hi {
-  fill: #fff;
-  opacity: 0.2;
-}
-
-.a-shl {
-  stroke: #000;
-  opacity: 0.16;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.a-ghost {
-  opacity: 0.14;
-}
-
-.a-shoe {
-  fill: var(--accent);
-}
-
-.a-metal {
-  fill: #8b95a3;
-  stroke: #5a6472;
-  stroke-width: 1;
-}
-
-.a-tape {
-  fill: #f2c200;
-}
-
-.a-horn {
-  fill: #efe6d2;
-  stroke: #b9ab8c;
-  stroke-width: 1;
-}
-
-.a-mane {
-  fill: var(--md, #a8651e);
-}
-
-.a-dark {
-  fill: #1d2733;
-  opacity: 0.9;
-}
-
-.a-soft {
-  fill: var(--bs, #fff);
-  opacity: 0.5;
-}
-
-.a-line {
-  stroke: #000;
-  opacity: 0.22;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.a-eye {
-  fill: #1b1f27;
-}
-
-.a-mouth {
-  stroke: #2b2420;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.a-brow {
-  stroke: #2b2420;
-  fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-}
-
-.a-sweat {
-  fill: var(--surface);
-  stroke: var(--muted);
-  stroke-width: 1;
-}
-
-.a-ground {
-  fill: var(--line);
-}
-
 .lvl {
   font-family: var(--display);
   font-size: 28px;
@@ -240,59 +125,11 @@
   box-shadow: 0 0 6px var(--aura);
 }
 
-.a-stop {
-  stop-color: var(--aura);
-}
-
-.a-ring {
-  fill: none;
-  stroke: var(--aura);
-  stroke-width: 1.5;
-}
-
-.a-spark {
-  fill: var(--aura);
-}
-
-.a-cape {
-  fill: #b8322a;
-}
-
-.a-band {
-  fill: var(--aura);
-}
-
-.a-belt {
-  fill: var(--aura);
-}
-
-.a-crown {
-  fill: var(--aura);
-  stroke: #8a6200;
-  stroke-width: 1;
-}
-
 .avc {
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: inherit;
-}
-
-@keyframes auraPulse {
-  0%,
-  100% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .a-glow {
-    animation: auraPulse 3s ease-in-out infinite;
-  }
 }
 
 .avc.sel {

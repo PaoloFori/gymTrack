@@ -1,4 +1,4 @@
-/* Analisi: statistiche per «scheda suprema» (sessione + dieta) o per sessione, record di tutte le sessioni insieme, peso e storico. */
+/* Analisi: statistiche per sessione (con la dieta collegata, se c'è) o per tutto insieme, record di tutte le sessioni insieme, peso e storico. */
 
 /* Allenamenti dell'ambito scelto (tutte le sessioni oppure una). */
 function scopeSession() {
@@ -42,7 +42,7 @@ function anChips() {
         `<button class="eq" data-act="an-scope" data-id="${x.id}" aria-pressed="${anScope === x.id}">${esc(x.nome)}${d ? " + " + esc(d.nome) : ""}</button>`
       );
     });
-  return `<div class="eqs">${chips.join("")}</div><p class="hint">Le sessioni con una dieta collegata sono «schede supreme».</p>`;
+  return `<div class="eqs">${chips.join("")}</div><p class="hint">Il «+ dieta» indica che alla sessione è collegata una dieta.</p>`;
 }
 /* Riquadro dell'ambito: statistiche e andamento settimanale. */
 function scopeCard() {
@@ -80,7 +80,7 @@ function scopeCard() {
   if (d) {
     var presi = d.spesa.filter((s) => s.preso).length,
       ck = d.cook || { mode: "due" };
-    h2 += `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">Dieta della scheda suprema</span><b class="xn">${esc(d.nome)}</b><span class="meta">${mealCount(d)} pasti · cottura ${ck.mode === "uno" ? "una volta al giorno" : "due volte al giorno"} · spesa ${presi}/${d.spesa.length}</span></span>${chevron()}</button>`;
+    h2 += `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">Dieta collegata</span><b class="xn">${esc(d.nome)}</b><span class="meta">${mealCount(d)} pasti · cottura ${ck.mode === "uno" ? "una volta al giorno" : "due volte al giorno"} · spesa ${presi}/${d.spesa.length}</span></span>${chevron()}</button>`;
   }
   return h2;
 }
@@ -130,7 +130,7 @@ function vAnalisi() {
   if (anScope !== "all" && !scopeSession()) anScope = "all";
   var seg = (m, t) => `<button class="btn small${hm === m ? " primary" : ""}" data-act="hist-m" data-m="${m}">${t}</button>`;
   return (
-    hdr("Analisi", "Schede supreme, sessioni e record", false) +
+    hdr("Analisi", "Sessioni, diete e record", false) +
     `<div class="stack">${anChips()}${scopeCard()}${recordsHTML()}${pesoHTML()}
     <div class="card"><div class="meta" style="margin:0 0 8px;font-weight:600">Storico${anScope === "all" ? "" : " della sessione"}</div><div class="row" style="gap:6px;margin-bottom:8px">${seg("sess", "Per sessione")}${seg("ex", "Per esercizio")}${seg("cron", "Cronologia")}</div>${histBody()}</div></div>`
   );

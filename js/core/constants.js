@@ -104,6 +104,9 @@ var AV = {
   lupo: "Lupo",
   gorilla: "Gorilla",
   leone: "Leone",
-  toro: "Toro"
+  toro: "Toro",
+  gatto: "Gatto",
+  cane: "Cane",
+  alieno: "Alieno"
 };
-var AVK = ["umano", "donna", "animale", "lupo", "gorilla", "leone", "toro"];
+var AVK = ["umano", "donna", "gatto", "cane", "alieno", "animale", "lupo", "gorilla", "leone", "toro"];
