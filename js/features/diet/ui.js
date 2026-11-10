@@ -2,11 +2,36 @@
 /* ---- viste ---- */
 function dayHTML(plan, i) {
   if (!plan[i] || !plan[i].length) return '<p class="meta">Niente in programma.</p>';
+  var dn = new Date(),
+    nowM = dn.getHours() * 60 + dn.getMinutes(),
+    cur = null,
+    nxt = null;
+  if (i === todayI()) {
+    plan[i].forEach(function (m) {
+      var s = hm(mealTime(m));
+      if (nowM >= s - 15 && nowM < s + 90) cur = m;
+    });
+    if (!cur)
+      plan[i].forEach(function (m) {
+        var s = hm(mealTime(m));
+        if (s > nowM && (!nxt || s < hm(mealTime(nxt)))) nxt = m;
+      });
+  }
   return plan[i]
+    .slice()
+    .sort(function (a, b) {
+      return hm(mealTime(a)) - hm(mealTime(b));
+    })
     .map(function (m) {
       return (
-        '<div class="meal"><div class="mt">' +
+        '<div class="meal' +
+        (m === cur ? " now" : m === nxt ? " next" : "") +
+        '"><div class="mt">' +
         esc(m.t) +
+        ' <span class="ora">' +
+        esc(mealTime(m)) +
+        "</span>" +
+        (m === cur ? '<span class="badge today-b">Adesso</span>' : m === nxt ? '<span class="badge">Prossimo</span>' : "") +
         "</div>" +
         m.v
           .map(function (it) {
@@ -24,6 +49,32 @@ function dayHTML(plan, i) {
       );
     })
     .join("");
+}
+/* «3 volte · 150 + 200 + 150 g»: quante volte si cucina e con quale quantità (cottura unica: pranzo e cena insieme contano una volta). */
+function spesaTimes(d, x) {
+  var q = [];
+  d.plan.forEach(function (day) {
+    day.forEach(function (m) {
+      m.v.forEach(function (it) {
+        if (!it.libero && !it.pronto && nname(it.n) + "|" + it.u === x.k) q.push(it.tot || it.qt);
+      });
+    });
+  });
+  if (!q.length) return "";
+  var u = x.u === "g" || x.u === "ml" ? x.u : x.u || "";
+  return (
+    '<span class="sq">' +
+    (q.length === 1 ? "1 volta" : q.length + " volte") +
+    " · " +
+    q
+      .map(function (v) {
+        return kgf(Math.round(v * 10) / 10);
+      })
+      .join(" + ") +
+    " " +
+    esc(u) +
+    "</span>"
+  );
 }
 function dietRow(d, sel) {
   var ss = dietSessions(d),
@@ -60,30 +111,33 @@ function dietRow(d, sel) {
   );
 }
 function vDieta() {
-  var c = curDiet(),
+  var cs = curDiets(),
+    c = cs[0],
     past = pastDiets(),
     a = attiva(),
     h = hdr("Dieta", "Corrente e archivio", false) + '<div class="stack">';
   h += '<div class="meta" style="margin:0;font-weight:600">Dieta corrente</div>';
-  if (c) {
-    h +=
-      '<button class="curcard" data-act="open-diet" data-id="' +
-      c.id +
-      '"><span class="ico">' +
-      TABS[2].i.replace(/^/, '<svg viewBox="0 0 24 24">') +
-      '</svg></span><span class="grow"><b class="xn">' +
-      esc(c.nome) +
-      '</b><span class="meta">' +
-      (a ? "Collegata a " + esc(a.nome) : "") +
-      " · " +
-      mealCount(c) +
-      ' pasti</span></span><span class="chev2">›</span></button>';
+  if (cs.length) {
+    cs.forEach(function (c) {
+      h +=
+        '<button class="curcard" data-act="open-diet" data-id="' +
+        c.id +
+        '"><span class="ico">' +
+        TABS[2].i.replace(/^/, '<svg viewBox="0 0 24 24">') +
+        '</svg></span><span class="grow"><b class="xn">' +
+        esc(c.nome) +
+        '</b><span class="meta">' +
+        (a && a.dietId === c.id ? "Collegata a " + esc(a.nome) : "Senza sessione") +
+        " · " +
+        mealCount(c) +
+        ' pasti</span></span><span class="chev2">›</span></button>';
+    });
   } else
     h +=
       '<div class="card"><p class="meta" style="margin:0">' +
-      (a ? "Nessuna dieta collegata alla sessione in corso. Collegane una dalla Home, oppure creane una nuova." : "Nessuna sessione in corso.") +
+      "Nessuna dieta corrente. Creane una nuova: può anche stare da sola, senza sessione." +
       "</p></div>";
-  h += '<button class="btn primary wide" data-act="d-new">+ Nuova dieta (JSON, IA o copia)</button>';
+  h += '<button class="btn primary wide" data-act="d-new">+ Nuova dieta (JSON, IA o copia)</button>' + notifDietCard();
   if (past.length) {
     h +=
       '<div class="card"><div class="row" style="margin-bottom:8px"><div class="meta grow" style="margin:0;font-weight:600">Diete passate</div><button class="btn small" data-act="sel-mode">' +
@@ -121,7 +175,7 @@ function vDietaD() {
     h =
       hdr(
         d.nome,
-        (dietActive(d) ? "Corrente" : "Passata") +
+        (isCurDiet(d) ? "Corrente" : "Passata") +
           (ss.length
             ? " · " +
               ss
@@ -129,7 +183,7 @@ function vDietaD() {
                   return x.nome;
                 })
                 .join(", ")
-            : " · non collegata"),
+            : " · senza sessione"),
         true
       ) + '<div class="stack">';
   h +=
@@ -194,6 +248,7 @@ function vDietaD() {
               '"><span class="bx">✓</span><span class="grow"><span class="sn2">' +
               esc(x.n) +
               "</span>" +
+              spesaTimes(d, x) +
               "</span></button>"
             );
           })
@@ -215,6 +270,9 @@ function vDietaD() {
         : "una volta al giorno (la sera cucini anche il pranzo di domani)"
       : "due volte al giorno") +
     '. Per collegare la dieta a una sessione usa la Home.</p><div class="grid2"><button class="btn" data-act="d-edit">Modifica alimenti</button><button class="btn" data-act="d-regen">Rigenera piano</button></div></div>';
+  if (isSolo(d))
+    h +=
+      '<button class="btn wide" data-act="d-arch">' + (d.archiviata ? "Riattiva come dieta corrente" : "Archivia (non è più corrente)") + "</button>";
   h += '<button class="btn danger wide" data-act="d-del">' + (armed === "dd" ? "Tocca ancora per eliminare" : "Elimina dieta") + "</button>";
   return h + "</div>";
 }
@@ -232,6 +290,13 @@ function dietHome(a) {
   );
 }
 
+ACT["d-arch"] = function () {
+  var d = dietById(view.id);
+  d.archiviata = !d.archiviata;
+  saveApp();
+  render();
+  toast(d.archiviata ? "Dieta archiviata" : "Dieta di nuovo corrente");
+};
 ACT["d-tab"] = function (d) {
   dTab = d.t;
   render();

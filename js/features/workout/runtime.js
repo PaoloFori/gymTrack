@@ -41,13 +41,13 @@ function askNotif() {
       );
   } catch (e) {}
 }
-function notify(t, b) {
+function notify(t, b, tag) {
   try {
     if (notifState() !== "granted") return;
     var o = {
       body: b,
       icon: "icons/icon-192.png",
-      tag: "gymtrack-rest",
+      tag: tag || "gymtrack-rest",
       renotify: true,
       vibrate: [200, 100, 200]
     };

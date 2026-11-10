@@ -121,10 +121,6 @@ async function genDietAI() {
 }
 
 ACT["d-new"] = function () {
-  if (!S.sessioni.length) {
-    toast("Prima crea una sessione: la dieta va collegata a una sessione");
-    return;
-  }
   var cur = attiva();
   sheet = {
     kind: "dieta",

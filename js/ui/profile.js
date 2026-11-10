@@ -44,6 +44,7 @@ function vProfilo() {
     nt +
     " Arrivano se l'app è aperta o appena passata in secondo piano; su iPhone solo se l'hai aggiunta alla Home. Con lo schermo acceso i timer restano precisi: durante l'allenamento l'app lo tiene acceso.</p>" +
     (ns === "default" ? '<button class="btn small" data-act="notif-on">Attiva notifiche</button>' : "") +
+    notifTrainCard() +
     "</div>";
   h +=
     '<div class="card"><div class="meta" style="margin:0 0 6px;font-weight:600">Accessori avatar</div><p class="hint" style="margin:0">Si sbloccano con i boost d\'aura di ogni sessione: fascia (1), cintura (3), mantello (5), corona (7).</p></div>';

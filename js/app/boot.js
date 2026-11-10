@@ -4,6 +4,7 @@ applyTheme();
 restoreSess();
 render();
 initCloud();
+notifStart();
 if (!CLOUD) {
   try {
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist();

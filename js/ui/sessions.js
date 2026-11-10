@@ -30,12 +30,24 @@ function vSessioni() {
       '<div class="card"><h3>Nessuna sessione in corso</h3><p class="meta" style="margin:6px 0 0">Una sessione dura da 1 a 12 mesi, ha le sue schede e il suo avatar: cresce a ogni allenamento e, se completi tutti gli allenamenti della settimana, ottiene un boost d\'aura. Se ne salti, ingrassa.</p></div>';
   h +=
     '<div class="grid2"><button class="btn primary" data-act="new-sess">+ Nuova sessione</button><button class="btn" data-act="imp-sess">Carica JSON</button></div>';
-  if (past.length) {
+  var soloPast = S.diete.filter(function (d) {
+    return isSolo(d) && d.archiviata;
+  });
+  if (past.length || soloPast.length) {
     h +=
-      '<div class="card"><div class="row" style="margin-bottom:8px"><div class="meta grow" style="margin:0;font-weight:600">Storico sessioni</div><button class="btn small" data-act="sel-mode">' +
+      '<div class="card"><div class="row" style="margin-bottom:8px"><div class="meta grow" style="margin:0;font-weight:600">Storico</div><button class="btn small" data-act="sel-mode">' +
       (selMode ? "Annulla" : "Seleziona") +
       "</button></div>" +
-      avGridItems(past, selMode);
+      avGridItems(past, selMode) +
+      (soloPast.length
+        ? '<div class="meta" style="margin:12px 0 6px;font-weight:600">Diete senza sessione</div><div class="stack" style="gap:8px">' +
+          soloPast
+            .map(function (d) {
+              return dietRow(d, false);
+            })
+            .join("") +
+          "</div>"
+        : "");
     h += selMode
       ? delBar("del-sess", "ds", "sessione", "sessioni") +
         '<p class="hint">Vengono eliminati anche gli allenamenti registrati in quelle sessioni. Le diete collegate solo a queste sessioni restano nell\'archivio delle diete.</p>'
@@ -78,6 +90,7 @@ function avGridItems(list, sel) {
       sub +
       (st.aura ? " · aura " + st.aura : "") +
       '</span><span class="meta">' +
+      (dietOf(x) ? "+ dieta «" + esc(dietOf(x).nome) + "» · " : "") +
       esc(x.obiettivo) +
       " · " +
       fd(x.start) +

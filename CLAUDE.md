@@ -79,12 +79,13 @@ salvato in `localStorage["gymtrack.v2.s"]`. Una serie `done` non si annulla; `ad
 ```js
 dieta = {
   id, nome, creata, periodo: { dal, al }|null,
+  solo, archiviata,              // solo = creata senza sessione; resta «corrente» finché non è archiviata o collegata a una sessione
   regole: { carne:{max}, rossa:{max}, pesce:{min}, tonno:{max}, uova:{min}, latt:{min}, legu:{min}, patate:{max}, libero:{n} },
   pref: "carne"|"pesce"|"indiff",  // preferenza: più carne, più pesce o indifferente (sempre dentro le regole)
   cook: { mode: "due"|"uno", dir: "sera"|"pranzo" },
   seed,                          // cambia a ogni «Rigenera» per variare il piano
-  pasti: [ { id, nome, on, piatti: [ { id, nome, varianti: [ { id, on, alimenti: [ { id, opzioni: [ { id, n, qt, u, on } ] } ] } ] } ] } ],
-  plan:  [ 7 giorni × [ { t: nomePasto, v: [ { n, qt, u, nota? } ] } ] ],
+  pasti: [ { id, nome, ora: "HH:MM"|"", on, piatti: [ { id, nome, varianti: [ { id, on, alimenti: [ { id, opzioni: [ { id, n, qt, u, on } ] } ] } ] } ] } ],
+  plan:  [ 7 giorni × [ { t: nomePasto, h: orario, v: [ { n, qt, u, nota?, libero?, pronto?, tot? } ] } ] ],
   spesa: [ { k, n, cat, q, u, preso } ]
 }
 ```
@@ -97,7 +98,10 @@ Una *variante* è un'alternativa completa del piatto; un *alimento* è una voce 
   e il primo riceve la nota «cucina X in totale».
 - **Pasti liberi**: `regole.libero.n` a settimana; `makePlan` mette «Pasto libero» (`libero: true`) a cena a partire dal sabato, fuori da conteggi e spesa.
 - **Preferenza** (`pref`): bonus/penalità nel punteggio di `makePlan` per carne o pesce, senza superare le regole.
-- **Spesa** (`makeSpesa`): somma per nome+unità e raggruppa per reparto (`DC`); la lista mostra solo cosa comprare, senza quantità. Nessuna marca consigliata.
+- **Spesa** (`makeSpesa`): somma per nome+unità e raggruppa per reparto (`DC`); la lista mostra cosa comprare con «N volte · quantità di ogni cottura» (`spesaTimes`, legge `plan`; `pronto` = già cucinato nel pasto prima, `tot` = quantità totale cucinata). Nessuna marca consigliata.
+- **Orari e «Adesso»**: `mealTime(m)` (orario scelto o tipico per nome); `dayHTML` evidenzia nel giorno di oggi il pasto in corso (da 15 min prima a 90 dopo) o il prossimo.
+- **Scheda madre** = sessione e/o dieta: `isSolo`/`isCurDiet`/`curDiets()` (model.js); la Home mostra anche le diete correnti senza sessione, lo storico delle Sessioni anche quelle archiviate senza sessione.
+- **Promemoria** (`features/notify.js`, `S.notif`): acqua (litri, intervallo), pasti/spuntini della dieta corrente, allenamenti in ritardo (`trainMsg`). `notifTick()` ogni 30 s e al ritorno in primo piano; niente server, quindi solo con l'app aperta o appena in secondo piano.
 - **Creazione dieta** (finestra `dieta`): `src` → `pasti` → `alim` (un pasto alla volta, `mi`) → `regole` (se il JSON non le ha le chiede, `RULEDEF`) → `pref` → `cucina`.
 
 ## JSON e IA

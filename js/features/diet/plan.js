@@ -112,7 +112,7 @@ function makePlan(d, seed) {
         mine = [];
       if (freeAt[day] === mi) {
         picks[day][mi] = [];
-        dayPlan.push({ t: m.nome, v: [{ n: "Pasto libero", qt: 0, u: "", libero: true, nota: "con moderazione, a buon senso" }] });
+        dayPlan.push({ t: m.nome, h: mealTime(m), v: [{ n: "Pasto libero", qt: 0, u: "", libero: true, nota: "con moderazione, a buon senso" }] });
         return;
       }
       m.piatti.forEach(function (p) {
@@ -199,6 +199,7 @@ function makePlan(d, seed) {
           entries.push(e);
           mine.push({ role: role, name: nname(chosen.n), entry: e, used: false });
           if (inh) {
+            e.pronto = true;
             e.nota = cook.dir === "pranzo" ? "già pronto: cucinato a pranzo" : "già pronto: cucinato ieri sera";
             e.pair = inh.entry;
             inh.entry.pair = e;
@@ -207,7 +208,7 @@ function makePlan(d, seed) {
         });
       });
       picks[day][mi] = mine;
-      dayPlan.push({ t: m.nome, v: entries });
+      dayPlan.push({ t: m.nome, h: mealTime(m), v: entries });
     });
     plan.push(dayPlan);
   }
@@ -216,6 +217,7 @@ function makePlan(d, seed) {
     dp.forEach(function (m) {
       m.v.forEach(function (e) {
         if (e.first && e.pair) {
+          e.tot = e.qt + e.pair.qt;
           e.nota =
             "cucina " +
             fmtQ(e.qt + e.pair.qt, e.u) +

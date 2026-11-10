@@ -52,9 +52,9 @@ function profileCard() {
     : '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
   return `<button class="curcard" data-act="open-profilo"><span class="pfoto" style="width:56px;height:56px">${foto}</span><span class="grow"><b class="xn">${esc(p.nome || "Il tuo profilo")}</b><span class="meta">${meta || "Tocca per inserire nome, età, altezza e peso"}</span></span>${chevron()}</button>`;
 }
-function dietLinkCard(d) {
+function dietLinkCard(d, lbl) {
   var oggi = (d.plan[todayI()] || []).map((m) => m.t).join(", ") || "—";
-  return `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">Dieta corrente</span><b class="xn">${esc(d.nome)}</b><span class="meta">Oggi: ${esc(oggi)}</span></span>${chevron()}</button>`;
+  return `<button class="curcard" data-act="open-diet" data-id="${d.id}"><span class="ico"><svg viewBox="0 0 24 24">${TABS[2].i}</svg></span><span class="grow"><span class="meta" style="margin:0">${lbl || "Dieta corrente"}</span><b class="xn">${esc(d.nome)}</b><span class="meta">Oggi: ${esc(oggi)}</span></span>${chevron()}</button>`;
 }
 /* Riquadro principale della Home («scheda suprema» è solo il nome interno): avatar che si muove + sessione e dieta correnti. Toccandola si aprono i rimandi alle due schede. */
 function supremaCard(a) {
@@ -85,11 +85,18 @@ function supremaCard(a) {
   }
   return h + "</div>";
 }
+/* Diete correnti che non stanno in nessuna sessione: la «scheda madre» può avere solo la dieta. */
+function soloDiets() {
+  return curDiets()
+    .filter(isSolo)
+    .map((d) => dietLinkCard(d, "Dieta corrente · senza sessione"))
+    .join("");
+}
 function vHome() {
   var p = S.profile;
   return (
     hdr("Home", p.nome ? "Ciao " + p.nome : "Il tuo riepilogo", false) +
-    `<div class="stack">${backupBanner()}${profileCard()}${supremaCard(attiva())}${calCard()}</div>`
+    `<div class="stack">${backupBanner()}${profileCard()}${supremaCard(attiva())}${soloDiets()}${calCard()}</div>`
   );
 }
 ACT["sup-toggle"] = function () {

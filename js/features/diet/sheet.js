@@ -21,7 +21,8 @@ function dietSheet() {
   var err = k.err ? '<div class="banner exp" style="margin-bottom:12px">' + esc(k.err) + "</div>" : "";
   if (/^(src|gen|genout)$/.test(k.step)) return dietSourceSheet(k);
   if (k.step === "pasti") {
-    b += '<p class="meta" style="margin:0 0 8px">Ho trovato questi pasti. Togli la spunta a quelli che non fai.</p>';
+    b +=
+      '<p class="meta" style="margin:0 0 8px">Ho trovato questi pasti. Togli la spunta a quelli che non fai e controlla l\'orario: serve a mostrarti cosa mangiare adesso e ai promemoria.</p>';
     k.pasti.forEach(function (m) {
       var n = 0;
       m.piatti.forEach(function (p) {
@@ -43,7 +44,13 @@ function dietSheet() {
         (m.piatti.length === 1 ? " piatto" : " piatti") +
         " · " +
         n +
-        " alimenti</span></span></label>";
+        ' alimenti</span></span><input type="time" class="tm" data-ora="' +
+        m.id +
+        '" value="' +
+        esc(mealTime(m)) +
+        '" aria-label="Orario ' +
+        esc(m.nome) +
+        '"></label>';
     });
     return sheetShell(k.editId ? "Modifica la dieta" : "Quali pasti fai?", b + err, nav("d-next", "Avanti"));
   }
@@ -195,7 +202,7 @@ function dietSheet() {
     '" autocomplete="off"></div>';
   if (!k.editId)
     b +=
-      '<div class="meta" style="margin:0 0 6px;font-weight:600">Collegala a una sessione (obbligatorio)</div><div class="eqs" style="margin-bottom:14px">' +
+      '<div class="meta" style="margin:0 0 6px;font-weight:600">Collegala a una sessione (facoltativo: tocca di nuovo per togliere il collegamento)</div><div class="eqs" style="margin-bottom:14px">' +
       S.sessioni
         .slice()
         .reverse()
@@ -253,11 +260,6 @@ function ruleType(key, R) {
 }
 function dietMake() {
   var k = sheet;
-  if (!k.editId && !k.sessId) {
-    k.err = "Collega la dieta a una sessione.";
-    render();
-    return;
-  }
   if (
     !k.pasti.some(function (m) {
       return (
@@ -294,6 +296,7 @@ function dietMake() {
       nome: k.nome.trim() || "Dieta " + (S.diete.length + 1),
       creata: Date.now(),
       periodo: k.periodo || null,
+      solo: !k.sessId,
       regole: k.regole || {},
       pref: k.pref || "indiff",
       pasti: k.pasti,
@@ -413,6 +416,11 @@ ACT["d-make"] = function (d) {
 SHEETS.dieta = { html: dietSheet };
 
 HOOKS.input.push(function (t) {
+  if (t.dataset.ora !== undefined && sheet && sheet.pasti) {
+    var pm = dietFind(sheet, t.dataset.ora);
+    if (pm && /^\d{1,2}:\d{2}$/.test(t.value)) pm.ora = t.value;
+    return true;
+  }
   if (t.dataset.rule !== undefined && sheet && sheet.regole) {
     var key = t.dataset.rule,
       n = parseInt(t.value, 10),

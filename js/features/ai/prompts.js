@@ -13,6 +13,7 @@ var SCHEMA_DIETA = `{
   "pasti": [
     {
       "nome": "Colazione",
+      "ora": "08:00",
       "piatti": [
         {
           "nome": "Piatto unico",
@@ -30,6 +31,7 @@ var SCHEMA_DIETA = `{
   ]
 }`;
 var SCHEMA_DIETA_REGOLE = `- "pasti": nell'ordine della giornata (Colazione, Spuntino, Pranzo, Merenda, Cena), solo quelli previsti.
+- "ora" (facoltativo): l'orario del pasto "HH:MM", solo se il piano lo indica.
 - "piatti": le portate di un pasto ("1° Piatto", "2° Piatto", "Piatto unico").
 - "varianti": alternative COMPLETE dello stesso piatto (se il piano dice "Alternativa", ogni alternativa è una variante; altrimenti una sola).
 - "alimenti": le voci da mangiare insieme nella variante.

@@ -258,3 +258,37 @@
   font-size: 12px;
   color: var(--muted);
 }
+
+.meal .ora {
+  margin: 0 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.meal.now {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 8px 8px 10px;
+}
+
+.meal.next {
+  border-left: 4px solid var(--line);
+  padding-left: 10px;
+}
+
+.shop .sq {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fd .tm {
+  font: inherit;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+}

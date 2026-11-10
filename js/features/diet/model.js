@@ -93,6 +93,7 @@ function dietFromJson(o) {
       return {
         id: uid(),
         nome: String(m.nome || "Pasto"),
+        ora: /^\d{1,2}:\d{2}$/.test(m.ora || "") ? m.ora : "",
         on: m.on !== false,
         piatti: (m.piatti || []).map(function (p) {
           return {
@@ -162,18 +163,46 @@ function dietActive(d) {
     return !x.chiusa;
   });
 }
-function curDiet() {
+/* Dieta senza sessione (creata da sola): resta «corrente» finché non la archivi o la colleghi a una sessione. */
+function isSolo(d) {
+  return !!d.solo && !dietSessions(d).length;
+}
+function isCurDiet(d) {
   var a = attiva();
-  return a ? dietOf(a) : null;
+  return (!!a && a.dietId === d.id) || (isSolo(d) && !d.archiviata);
+}
+function curDiets() {
+  return S.diete.filter(isCurDiet);
+}
+function curDiet() {
+  return curDiets()[0] || null;
 }
 function pastDiets() {
-  var c = curDiet();
   return S.diete
     .filter(function (d) {
-      return !c || d.id !== c.id;
+      return !isCurDiet(d);
     })
     .slice()
     .reverse();
+}
+/* Orario dei pasti: quello scelto, altrimenti uno tipico in base al nome. */
+var MEAL_H = [
+  [/colazione/i, "08:00"],
+  [/merenda/i, "10:30"],
+  [/pranzo/i, "13:00"],
+  [/spuntino/i, "16:30"],
+  [/cena/i, "20:00"]
+];
+function mealTime(m) {
+  var n = m.nome || m.t || "",
+    h = m.ora || m.h;
+  if (h) return h;
+  for (var i = 0; i < MEAL_H.length; i++) if (MEAL_H[i][0].test(n)) return MEAL_H[i][1];
+  return "12:00";
+}
+function hm(s) {
+  var p = String(s).split(":");
+  return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
 }
 function dietById(id) {
   return S.diete.find(function (d) {
